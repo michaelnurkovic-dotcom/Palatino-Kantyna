@@ -11,6 +11,27 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // Firebase konfigurace
+        const firebaseConfig = {
+            apiKey: "AIzaSyBLQSuo5Fq8xHj0Mvpw3qeZHtiAkfmJWpU",
+            authDomain: "kantyna-palatino.firebaseapp.com",
+            projectId: "kantyna-palatino",
+            storageBucket: "kantyna-palatino.firebasestorage.app",
+            messagingSenderId: "529447592074",
+            appId: "1:529447592074:web:479beecad7e386d86bcd73",
+            measurementId: "G-8MBP6T6DWL"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Roboto:wght@300;400;500;700&display=swap');
         
@@ -87,7 +108,7 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // Simulace localStorage databáze
+        // Firebase databáze
         const DB = {
             getMenu: (manualDay = null) => {
                 // Denní menu podle dne v týdnu (automaticky se mění)
@@ -170,30 +191,36 @@
             },
             saveMenu: (menu) => {
                 // Menu se nemění manuálně - je automatické podle dne
-                // localStorage.setItem('menu', JSON.stringify(menu));
             },
-            getOrders: () => {
-                const orders = localStorage.getItem('orders');
-                return orders ? JSON.parse(orders) : [];
+            getOrders: async (callback) => {
+                // Real-time listener pro objednávky
+                const today = new Date().toISOString().split('T')[0];
+                db.collection('orders')
+                    .where('date', '==', today)
+                    .orderBy('createdAt', 'desc')
+                    .onSnapshot((snapshot) => {
+                        const orders = [];
+                        snapshot.forEach((doc) => {
+                            orders.push({ ...doc.data(), id: doc.id });
+                        });
+                        callback(orders);
+                    });
             },
-            saveOrder: (order) => {
-                const orders = DB.getOrders();
-                orders.push(order);
-                localStorage.setItem('orders', JSON.stringify(orders));
+            saveOrder: async (order) => {
+                const today = new Date().toISOString().split('T')[0];
+                const orderData = {
+                    ...order,
+                    date: today,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                await db.collection('orders').add(orderData);
                 return order;
             },
-            updateOrder: (orderId, updates) => {
-                const orders = DB.getOrders();
-                const index = orders.findIndex(o => o.id === orderId);
-                if (index !== -1) {
-                    orders[index] = { ...orders[index], ...updates };
-                    localStorage.setItem('orders', JSON.stringify(orders));
-                }
+            updateOrder: async (orderId, updates) => {
+                await db.collection('orders').doc(orderId).update(updates);
             },
-            deleteOrder: (orderId) => {
-                let orders = DB.getOrders();
-                orders = orders.filter(o => o.id !== orderId);
-                localStorage.setItem('orders', JSON.stringify(orders));
+            deleteOrder: async (orderId) => {
+                await db.collection('orders').doc(orderId).delete();
             }
         };
 
@@ -256,7 +283,7 @@
 
             const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-            const submitOrder = () => {
+            const submitOrder = async () => {
                 if (!customerName.trim()) {
                     alert('Prosím vyplň své jméno');
                     return;
@@ -267,7 +294,6 @@
                 }
 
                 const order = {
-                    id: Date.now(),
                     customerName: customerName.trim(),
                     items: cart,
                     pickupTime,
@@ -277,11 +303,16 @@
                     pin: Math.floor(1000 + Math.random() * 9000)
                 };
 
-                DB.saveOrder(order);
-                setOrderConfirmed(order);
-                setCart([]);
-                setCustomerName('');
-                setStep('confirm');
+                try {
+                    await DB.saveOrder(order);
+                    setOrderConfirmed(order);
+                    setCart([]);
+                    setCustomerName('');
+                    setStep('confirm');
+                } catch (error) {
+                    alert('Chyba při odesílání objednávky. Zkuste to znovu.');
+                    console.error(error);
+                }
             };
 
             if (step === 'confirm' && orderConfirmed) {
@@ -466,6 +497,17 @@
                     {cart.length > 0 && (
                         <div className="fixed bottom-0 left-0 right-0 elegant-shadow slide-up" style={{background: '#FFFFFF', borderTop: '2px solid #C9A55A'}}>
                             <div className="p-6">
+                                <div className="flex justify-between items-center mb-4 pb-3" style={{borderBottom: '1px solid rgba(201, 165, 90, 0.2)'}}>
+                                    <span className="font-medium text-sm gold-accent" style={{letterSpacing: '1px'}}>VÁŠ KOŠÍK ({cart.length})</span>
+                                    <button
+                                        onClick={() => setCart([])}
+                                        className="text-xs font-medium"
+                                        style={{color: '#999999', textDecoration: 'underline'}}
+                                    >
+                                        Zrušit vše
+                                    </button>
+                                </div>
+
                                 <div className="mb-4">
                                     <label className="block text-xs font-medium mb-2 gold-accent" style={{letterSpacing: '2px'}}>
                                         JMÉNO
@@ -550,7 +592,10 @@
             }, [isAuth]);
 
             const loadData = () => {
-                setOrders(DB.getOrders().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+                // Real-time listener pro objednávky
+                DB.getOrders((orders) => {
+                    setOrders(orders);
+                });
                 setMenu(DB.getMenu());
             };
 
@@ -562,15 +607,13 @@
                 }
             };
 
-            const markAsCompleted = (orderId) => {
-                DB.updateOrder(orderId, { status: 'completed' });
-                loadData();
+            const markAsCompleted = async (orderId) => {
+                await DB.updateOrder(orderId, { status: 'completed' });
             };
 
-            const deleteOrder = (orderId) => {
+            const deleteOrder = async (orderId) => {
                 if (confirm('Opravdu smazat tuto objednávku?')) {
-                    DB.deleteOrder(orderId);
-                    loadData();
+                    await DB.deleteOrder(orderId);
                 }
             };
 
