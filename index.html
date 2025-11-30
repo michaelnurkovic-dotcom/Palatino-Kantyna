@@ -293,6 +293,13 @@
                     return;
                 }
 
+                // Kontrola zda objednává pro dnešní den
+                const today = new Date().getDay();
+                if (manualDay !== null && manualDay !== today) {
+                    alert('Nelze objednat jídlo z jiného dne! Prosím klikni na AUTO pro dnešní menu.');
+                    return;
+                }
+
                 const order = {
                     customerName: customerName.trim(),
                     items: cart,
