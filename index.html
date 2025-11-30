@@ -3,21 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#4F46E5">
+    <meta name="theme-color" content="#C9A55A">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Kantýna - Objednávky</title>
+    <title>Palatino Kantýna</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
     <script>
-        // Firebase konfigurace
         const firebaseConfig = {
             apiKey: "AIzaSyBLQSuo5Fq8xHj0Mvpw3qeZHtiAkfmJWpU",
             authDomain: "kantyna-palatino.firebaseapp.com",
@@ -27,103 +25,587 @@
             appId: "1:529447592074:web:479beecad7e386d86bcd73",
             measurementId: "G-8MBP6T6DWL"
         };
-        
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
     </script>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Roboto:wght@300;400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap');
+        
+        :root {
+            --gold: #C9A55A;
+            --gold-light: #E8D5A3;
+            --gold-dark: #A88B3D;
+            --cream: #FDF8F0;
+            --charcoal: #2A2A2A;
+            --white: #FFFFFF;
+        }
         
         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            font-family: 'Roboto', sans-serif;
         }
+        
         body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--cream);
+            color: var(--charcoal);
             overscroll-behavior: none;
-            touch-action: pan-y;
-            background: #FFFFFF;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-        h1, h2 {
-            font-family: 'Playfair Display', serif;
+        
+        /* Animated Background */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.03;
+            background-image: 
+                repeating-linear-gradient(45deg, var(--gold) 0, var(--gold) 1px, transparent 0, transparent 50%),
+                repeating-linear-gradient(-45deg, var(--gold) 0, var(--gold) 1px, transparent 0, transparent 50%);
+            background-size: 40px 40px;
+            animation: patternShift 20s linear infinite;
         }
-        h3 {
-            font-family: 'Roboto', sans-serif;
+        
+        @keyframes patternShift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(40px, 40px); }
         }
-        .fade-in {
-            animation: fadeIn 0.6s ease-in;
+        
+        /* Floating Particles */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: var(--gold);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.2;
+            animation: floatParticle 15s infinite ease-in-out;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        
+        @keyframes floatParticle {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
         }
-        .slide-up {
-            animation: slideUp 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-        @keyframes slideUp {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .elegant-shadow {
-            box-shadow: 0 5px 20px rgba(201, 165, 90, 0.15);
-        }
-        .menu-card {
-            background: #FFFFFF;
-            border: 1px solid #C9A55A;
-            transition: all 0.3s ease;
-        }
-        .menu-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(201, 165, 90, 0.25);
-        }
+        
+        /* Watermark */
         .watermark {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 180px;
-            font-weight: 900;
-            color: rgba(201, 165, 90, 0.25);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(60px, 20vw, 200px);
+            font-weight: 700;
+            color: var(--gold);
+            opacity: 0.06;
             pointer-events: none;
-            z-index: 9999;
-            user-select: none;
-            letter-spacing: 35px;
+            z-index: 1;
+            letter-spacing: 0.2em;
             white-space: nowrap;
-            text-shadow: 2px 2px 4px rgba(201, 165, 90, 0.1);
-            font-family: 'Playfair Display', serif;
+            text-transform: uppercase;
         }
-        @media (max-width: 768px) {
-            .watermark {
-                font-size: 80px;
-                letter-spacing: 15px;
-                color: rgba(201, 165, 90, 0.30);
+        
+        /* Typography */
+        h1, h2, h3 {
+            font-family: 'Cormorant Garamond', serif;
+        }
+        
+        /* Elegant Button Styles */
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: var(--white);
+            border: none;
+            padding: 16px 32px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-gold::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-gold:hover::before {
+            left: 100%;
+        }
+        
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(201, 165, 90, 0.4);
+        }
+        
+        .btn-gold:active {
+            transform: translateY(0);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            padding: 12px 24px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0;
+            background: var(--gold);
+            transition: height 0.3s ease;
+            z-index: -1;
+        }
+        
+        .btn-outline:hover {
+            color: var(--white);
+        }
+        
+        .btn-outline:hover::after {
+            height: 100%;
+        }
+        
+        /* Card Styles */
+        .card {
+            background: var(--white);
+            border: 1px solid rgba(201, 165, 90, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 0;
+            background: linear-gradient(180deg, var(--gold) 0%, var(--gold-light) 100%);
+            transition: height 0.4s ease;
+        }
+        
+        .card:hover::before {
+            height: 100%;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(201, 165, 90, 0.15);
+            border-color: var(--gold);
+        }
+        
+        /* Decorative Elements */
+        .ornament {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin: 20px 0;
+        }
+        
+        .ornament-line {
+            height: 1px;
+            width: 60px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+        
+        .ornament-diamond {
+            width: 8px;
+            height: 8px;
+            background: var(--gold);
+            transform: rotate(45deg);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: rotate(45deg) scale(1); }
+            50% { opacity: 1; transform: rotate(45deg) scale(1.2); }
+        }
+        
+        /* Input Styles */
+        .input-elegant {
+            width: 100%;
+            padding: 16px 20px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            border: 1px solid rgba(201, 165, 90, 0.3);
+            background: var(--white);
+            color: var(--charcoal);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .input-elegant:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201, 165, 90, 0.1);
+        }
+        
+        .input-elegant::placeholder {
+            color: #999;
+            font-weight: 300;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-        .gold-accent {
-            color: #C9A55A;
+        
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
-        .divider {
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        @keyframes borderGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(201, 165, 90, 0); }
+            50% { box-shadow: 0 0 20px 5px rgba(201, 165, 90, 0.2); }
+        }
+        
+        .animate-fadeInUp {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        .animate-fadeInScale {
+            animation: fadeInScale 0.5s ease-out forwards;
+        }
+        
+        .animate-slideUp {
+            animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        /* Staggered animations */
+        .stagger-1 { animation-delay: 0.1s; opacity: 0; }
+        .stagger-2 { animation-delay: 0.2s; opacity: 0; }
+        .stagger-3 { animation-delay: 0.3s; opacity: 0; }
+        .stagger-4 { animation-delay: 0.4s; opacity: 0; }
+        .stagger-5 { animation-delay: 0.5s; opacity: 0; }
+        
+        /* Counter Animation */
+        .counter-badge {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
+            background: var(--gold);
+            color: var(--white);
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 12px;
+            animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Quantity Controls */
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px;
+            border: 1px solid var(--gold);
+            background: rgba(201, 165, 90, 0.05);
+        }
+        
+        .qty-btn {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--white);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            font-size: 20px;
+            font-weight: 300;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .qty-btn:hover {
+            background: var(--gold);
+            color: var(--white);
+        }
+        
+        .qty-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Day Selector Pills */
+        .day-pill {
+            padding: 10px 16px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            border: 1px solid var(--gold);
+            background: transparent;
+            color: var(--gold);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .day-pill.active {
+            background: var(--gold);
+            color: var(--white);
+        }
+        
+        .day-pill:not(.active):hover {
+            background: rgba(201, 165, 90, 0.1);
+        }
+        
+        /* Price Tag */
+        .price-tag {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 26px;
+            font-weight: 300;
+            color: var(--gold);
+            position: relative;
+            letter-spacing: 1px;
+        }
+        
+        .price-tag::after {
+            content: ' Kč';
+            font-size: 13px;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+        
+        /* Category Divider */
+        .category-header {
+            text-align: center;
+            padding: 40px 20px 30px;
+            position: relative;
+        }
+        
+        .category-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--gold);
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .category-title::before,
+        .category-title::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40px;
             height: 1px;
-            background: #C9A55A;
-            opacity: 0.3;
+            background: var(--gold);
+        }
+        
+        .category-title::before {
+            right: calc(100% + 20px);
+        }
+        
+        .category-title::after {
+            left: calc(100% + 20px);
+        }
+        
+        /* Confirmation Screen */
+        .confirm-pin {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 64px;
+            font-weight: 200;
+            color: var(--gold);
+            letter-spacing: 8px;
+            animation: fadeInScale 0.8s ease-out;
+        }
+        
+        .confirm-check {
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            animation: borderGlow 2s infinite;
+        }
+        
+        .confirm-check svg {
+            width: 40px;
+            height: 40px;
+            stroke: var(--gold);
+            stroke-width: 2;
+            animation: drawCheck 0.6s ease-out 0.3s forwards;
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+        }
+        
+        @keyframes drawCheck {
+            to { stroke-dashoffset: 0; }
+        }
+        
+        /* Cart Panel */
+        .cart-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border-top: 2px solid var(--gold);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .cart-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background: var(--gold);
+            opacity: 0.5;
+        }
+        
+        /* Header Glass Effect */
+        .header-glass {
+            background: rgba(253, 248, 240, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(201, 165, 90, 0.3);
+        }
+        
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            z-index: 1000;
+            transition: width 0.1s ease;
+        }
+        
+        /* Loading Shimmer */
+        .shimmer {
+            background: linear-gradient(90deg, 
+                rgba(201, 165, 90, 0.1) 25%, 
+                rgba(201, 165, 90, 0.2) 50%, 
+                rgba(201, 165, 90, 0.1) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        /* Responsive */
+        @media (max-width: 640px) {
+            .category-title::before,
+            .category-title::after {
+                width: 20px;
+            }
+            
+            .category-title::before {
+                right: calc(100% + 10px);
+            }
+            
+            .category-title::after {
+                left: calc(100% + 10px);
+            }
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
         // Firebase databáze
         const DB = {
             getMenu: (manualDay = null) => {
-                // Denní menu podle dne v týdnu (automaticky se mění)
-                const dayOfWeek = manualDay !== null ? manualDay : new Date().getDay(); // 0 = Neděle, 1 = Pondělí, ... 5 = Pátek
+                const dayOfWeek = manualDay !== null ? manualDay : new Date().getDay();
                 
-                // Menu pro každý den (PONDĚLÍ-PÁTEK)
                 const dailyMenus = {
-                    1: [ // PONDĚLÍ
+                    1: [
                         { id: 1, name: 'Fazolová polévka se sýrem feta', price: 49, category: 'Polévka', available: true },
                         { id: 2, name: 'Kuře na paprice s těstovinami', price: 169, category: 'Hlavní jídlo', available: true },
                         { id: 3, name: 'Vepřová panenka pečená ve slanině', price: 199, category: 'Hlavní jídlo', available: true },
@@ -135,7 +617,7 @@
                         { id: 9, name: 'Linguine carbonara', price: 198, category: 'Hlavní jídlo', available: true },
                         { id: 10, name: 'Šunková pizza Ø 29cm', price: 179, category: 'Hlavní jídlo', available: true }
                     ],
-                    2: [ // ÚTERÝ
+                    2: [
                         { id: 1, name: 'Hovězí vývar s játrovými knedlíčky', price: 59, category: 'Polévka', available: true },
                         { id: 2, name: 'Španělský ptáček', price: 199, category: 'Hlavní jídlo', available: true },
                         { id: 3, name: 'Halušky s uzeným masem, bílé zelí', price: 169, category: 'Hlavní jídlo', available: true },
@@ -148,7 +630,7 @@
                         { id: 10, name: 'Gnocchi potenza', price: 189, category: 'Hlavní jídlo', available: true },
                         { id: 11, name: 'Penne bolognese', price: 178, category: 'Hlavní jídlo', available: true }
                     ],
-                    3: [ // STŘEDA
+                    3: [
                         { id: 1, name: 'Tomatová polévka se sýrem', price: 59, category: 'Polévka', available: true },
                         { id: 2, name: 'Hovězí guláš', price: 189, category: 'Hlavní jídlo', available: true },
                         { id: 3, name: 'Kuřecí řízek s vídeňským bramborovým salátem', price: 189, category: 'Hlavní jídlo', available: true },
@@ -160,7 +642,7 @@
                         { id: 9, name: 'Houbovo smetanová pinsa Ø 32 cm', price: 208, category: 'Hlavní jídlo', available: true },
                         { id: 10, name: 'Lasagne s kuřecím masem a špenátem', price: 239, category: 'Hlavní jídlo', available: true }
                     ],
-                    4: [ // ČTVRTEK
+                    4: [
                         { id: 1, name: 'Bramboračka', price: 49, category: 'Polévka', available: true },
                         { id: 2, name: 'Hovězí ragú po Burgundsku', price: 199, category: 'Hlavní jídlo', available: true },
                         { id: 3, name: 'Kuřecí steak s tyrolskou šunkou', price: 189, category: 'Hlavní jídlo', available: true },
@@ -172,7 +654,7 @@
                         { id: 9, name: 'Pinsa s kuřecím masem a BBQ omáčkou Ø 32 cm', price: 218, category: 'Hlavní jídlo', available: true },
                         { id: 10, name: 'Linguine aglio olio peperoncino', price: 158, category: 'Hlavní jídlo', available: true }
                     ],
-                    5: [ // PÁTEK
+                    5: [
                         { id: 1, name: 'Špenátový krém se sýrovými krutony', price: 59, category: 'Polévka', available: true },
                         { id: 2, name: 'Kuřecí specatino se šťouchanými brambory', price: 189, category: 'Hlavní jídlo', available: true },
                         { id: 3, name: 'Obalovaný sýr Gouda', price: 179, category: 'Hlavní jídlo', available: true },
@@ -186,21 +668,16 @@
                     ]
                 };
                 
-                // Pokud je Pondělí-Pátek (1-5), vrať denní menu, jinak výchozí menu
                 if (dayOfWeek >= 1 && dayOfWeek <= 5) {
                     return dailyMenus[dayOfWeek];
                 } else {
-                    // Víkend - vrať nějaké základní menu nebo prázdné
                     return [
                         { id: 1, name: 'O víkendu nemáme polední menu', price: 0, category: 'Info', available: false }
                     ];
                 }
             },
-            saveMenu: (menu) => {
-                // Menu se nemění manuálně - je automatické podle dne
-            },
+            saveMenu: (menu) => {},
             getOrders: async (callback) => {
-                // Real-time listener pro objednávky
                 const today = new Date().toISOString().split('T')[0];
                 db.collection('orders')
                     .where('date', '==', today)
@@ -231,61 +708,116 @@
             }
         };
 
-        // Hlavní komponenta
-        function App() {
-            const [view, setView] = useState('customer'); // 'customer' nebo 'admin'
-            const [isAdminAuth, setIsAdminAuth] = useState(false);
-            const [manualDay, setManualDay] = useState(null); // null = automatický den, jinak číslo 1-5
-
+        // Floating Particles Component
+        function FloatingParticles() {
+            const particles = Array.from({ length: 15 }, (_, i) => ({
+                id: i,
+                left: Math.random() * 100,
+                delay: Math.random() * 15,
+                duration: 15 + Math.random() * 10,
+                size: 2 + Math.random() * 4
+            }));
+            
             return (
-                <div className="min-h-screen pb-20">
-                    <div className="watermark">NURKOVIČ</div>
-                    {view === 'customer' ? (
-                        <CustomerView 
-                            onAdminClick={() => setView('admin')} 
-                            manualDay={manualDay}
-                            setManualDay={setManualDay}
+                <>
+                    {particles.map(p => (
+                        <div
+                            key={p.id}
+                            className="particle"
+                            style={{
+                                left: `${p.left}%`,
+                                width: `${p.size}px`,
+                                height: `${p.size}px`,
+                                animationDelay: `${p.delay}s`,
+                                animationDuration: `${p.duration}s`
+                            }}
                         />
-                    ) : (
-                        <AdminView 
-                            isAuth={isAdminAuth} 
-                            onAuth={setIsAdminAuth}
-                            onBack={() => setView('customer')} 
-                        />
-                    )}
+                    ))}
+                </>
+            );
+        }
+
+        // Scroll Progress Indicator
+        function ScrollProgress() {
+            const [progress, setProgress] = useState(0);
+            
+            useEffect(() => {
+                const handleScroll = () => {
+                    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+                    const scrollTop = window.scrollY;
+                    setProgress((scrollTop / scrollHeight) * 100);
+                };
+                
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+            
+            return <div className="scroll-indicator" style={{ width: `${progress}%` }} />;
+        }
+
+        // Ornament Divider Component
+        function Ornament() {
+            return (
+                <div className="ornament">
+                    <div className="ornament-line" />
+                    <div className="ornament-diamond" />
+                    <div className="ornament-line" />
                 </div>
             );
         }
 
-        // Zákaznické rozhraní
+        // Main App
+        function App() {
+            const [view, setView] = useState('customer');
+            const [isAdminAuth, setIsAdminAuth] = useState(false);
+            const [manualDay, setManualDay] = useState(null);
+
+            return (
+                <div style={{ minHeight: '100vh', position: 'relative' }}>
+                    <div className="bg-pattern" />
+                    <FloatingParticles />
+                    <div className="watermark">NURKOVIČ</div>
+                    <ScrollProgress />
+                    
+                    <div style={{ position: 'relative', zIndex: 2 }}>
+                        {view === 'customer' ? (
+                            <CustomerView 
+                                onAdminClick={() => setView('admin')} 
+                                manualDay={manualDay}
+                                setManualDay={setManualDay}
+                            />
+                        ) : (
+                            <AdminView 
+                                isAuth={isAdminAuth} 
+                                onAuth={setIsAdminAuth}
+                                onBack={() => setView('customer')} 
+                            />
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // Customer View
         function CustomerView({ onAdminClick, manualDay, setManualDay }) {
-            const [step, setStep] = useState('menu'); // 'menu', 'order', 'confirm'
+            const [step, setStep] = useState('menu');
             const [cart, setCart] = useState([]);
             const [customerName, setCustomerName] = useState('');
-            const [pickupTime, setPickupTime] = useState('10:00');
+            const [pickupTime, setPickupTime] = useState('11:00');
             const [orderConfirmed, setOrderConfirmed] = useState(null);
             const [currentMenu, setCurrentMenu] = useState([]);
+            const [isLoading, setIsLoading] = useState(true);
 
             const currentDay = manualDay !== null ? manualDay : new Date().getDay();
             const dayNames = ['NEDĚLE', 'PONDĚLÍ', 'ÚTERÝ', 'STŘEDA', 'ČTVRTEK', 'PÁTEK', 'SOBOTA'];
 
-            // Automatická aktualizace menu při změně dne
             useEffect(() => {
-                const updateMenu = () => {
+                setIsLoading(true);
+                setTimeout(() => {
                     const menu = DB.getMenu(manualDay).filter(item => item.available);
                     setCurrentMenu(menu);
-                };
-                
-                updateMenu();
-                
-                // Kontrola každou minutu jestli se nezměnil den
-                const interval = setInterval(() => {
-                    if (manualDay === null) {
-                        updateMenu();
-                    }
-                }, 60000); // 60 sekund
-                
-                return () => clearInterval(interval);
+                    setIsLoading(false);
+                }, 300);
             }, [manualDay]);
 
             const menu = currentMenu;
@@ -309,6 +841,7 @@
             };
 
             const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
             const submitOrder = async () => {
                 if (!customerName.trim()) {
@@ -320,7 +853,6 @@
                     return;
                 }
 
-                // Kontrola zda objednává pro dnešní den
                 const today = new Date().getDay();
                 if (manualDay !== null && manualDay !== today) {
                     alert('Nelze objednat jídlo z jiného dne! Prosím klikni na AUTO pro dnešní menu.');
@@ -349,48 +881,110 @@
                 }
             };
 
+            // Confirmation Screen
             if (step === 'confirm' && orderConfirmed) {
                 return (
-                    <div className="slide-up min-h-screen" style={{background: '#FFFFFF'}}>
-                        <div className="text-center p-10" style={{background: '#FFFFFF', borderBottom: '2px solid #C9A55A'}}>
-                            <div className="text-6xl mb-4 gold-accent">✓</div>
-                            <h1 className="text-2xl font-bold gold-accent mb-2" style={{letterSpacing: '6px'}}>
+                    <div style={{ minHeight: '100vh', background: 'var(--cream)' }}>
+                        <div style={{ 
+                            background: 'var(--white)', 
+                            borderBottom: '2px solid var(--gold)',
+                            padding: '60px 24px',
+                            textAlign: 'center'
+                        }}>
+                            <div className="confirm-check animate-fadeInScale">
+                                <svg viewBox="0 0 24 24" fill="none">
+                                    <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </div>
+                            <h1 style={{ 
+                                fontFamily: "'Cormorant Garamond', serif",
+                                fontSize: '24px',
+                                fontWeight: '500',
+                                color: 'var(--gold)',
+                                letterSpacing: '6px',
+                                marginBottom: '8px'
+                            }} className="animate-fadeInUp stagger-1">
                                 OBJEDNÁVKA PŘIJATA
                             </h1>
-                            <p className="text-sm font-light gold-accent" style={{opacity: 0.7}}>Vaše jídlo bude připraveno</p>
+                            <p style={{ 
+                                fontSize: '12px',
+                                fontWeight: '300',
+                                color: 'var(--gold)',
+                                opacity: 0.7,
+                                letterSpacing: '2px'
+                            }} className="animate-fadeInUp stagger-2">
+                                Vaše jídlo bude připraveno
+                            </p>
                         </div>
 
-                        <div className="p-6">
-                            <div className="menu-card p-8 mb-6">
-                                <div className="text-center mb-8 pb-6" style={{borderBottom: '1px solid #C9A55A'}}>
-                                    <p className="text-xs font-medium mb-3 gold-accent" style={{letterSpacing: '2px'}}>VÁŠ PIN KÓD</p>
-                                    <div className="text-6xl font-light mb-2 gold-accent">
-                                        {orderConfirmed.pin}
-                                    </div>
-                                    <p className="text-xs font-light gold-accent" style={{opacity: 0.6}}>Předložte tento kód při vyzvednutí</p>
+                        <div style={{ padding: '32px 20px' }}>
+                            <div className="card animate-fadeInUp stagger-3" style={{ padding: '40px 24px' }}>
+                                <div style={{ textAlign: 'center', marginBottom: '40px', paddingBottom: '32px', borderBottom: '1px solid rgba(201, 165, 90, 0.2)' }}>
+                                    <p style={{ 
+                                        fontSize: '11px', 
+                                        fontWeight: '500', 
+                                        letterSpacing: '3px', 
+                                        color: 'var(--gold)',
+                                        marginBottom: '16px'
+                                    }}>VÁŠ PIN KÓD</p>
+                                    <div className="confirm-pin">{orderConfirmed.pin}</div>
+                                    <p style={{ 
+                                        fontSize: '11px', 
+                                        fontWeight: '300', 
+                                        color: 'var(--gold)',
+                                        opacity: 0.6,
+                                        marginTop: '16px'
+                                    }}>Předložte tento kód při vyzvednutí</p>
                                 </div>
 
-                                <div className="mb-6 space-y-3">
-                                    <div className="flex justify-between py-3" style={{borderBottom: '1px solid rgba(201, 165, 90, 0.2)'}}>
-                                        <span className="text-sm font-light gold-accent">Jméno</span>
-                                        <span className="font-medium gold-accent">{orderConfirmed.customerName}</span>
-                                    </div>
-                                    <div className="flex justify-between py-3" style={{borderBottom: '1px solid rgba(201, 165, 90, 0.2)'}}>
-                                        <span className="text-sm font-light gold-accent">Čas vyzvednutí</span>
-                                        <span className="font-medium gold-accent">{orderConfirmed.pickupTime}</span>
-                                    </div>
-                                    <div className="flex justify-between py-4">
-                                        <span className="text-sm font-medium gold-accent">K úhradě</span>
-                                        <span className="text-2xl font-light gold-accent">{orderConfirmed.totalPrice} Kč</span>
+                                <div style={{ marginBottom: '32px' }}>
+                                    {[
+                                        { label: 'Jméno', value: orderConfirmed.customerName },
+                                        { label: 'Čas vyzvednutí', value: orderConfirmed.pickupTime }
+                                    ].map((item, idx) => (
+                                        <div key={idx} style={{ 
+                                            display: 'flex', 
+                                            justifyContent: 'space-between',
+                                            padding: '16px 0',
+                                            borderBottom: '1px solid rgba(201, 165, 90, 0.1)'
+                                        }}>
+                                            <span style={{ fontSize: '13px', fontWeight: '300', color: '#666' }}>{item.label}</span>
+                                            <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--charcoal)' }}>{item.value}</span>
+                                        </div>
+                                    ))}
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        padding: '24px 0'
+                                    }}>
+                                        <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--gold)', letterSpacing: '1px' }}>K ÚHRADĚ</span>
+                                        <span className="price-tag" style={{ fontSize: '36px' }}>{orderConfirmed.totalPrice}</span>
                                     </div>
                                 </div>
 
-                                <div className="pt-6" style={{borderTop: '1px solid #C9A55A'}}>
-                                    <p className="text-xs font-medium mb-4 gold-accent" style={{letterSpacing: '2px'}}>POLOŽKY</p>
+                                <Ornament />
+
+                                <div style={{ paddingTop: '24px' }}>
+                                    <p style={{ 
+                                        fontSize: '11px', 
+                                        fontWeight: '500', 
+                                        letterSpacing: '2px', 
+                                        color: 'var(--gold)',
+                                        marginBottom: '16px'
+                                    }}>POLOŽKY</p>
                                     {orderConfirmed.items.map(item => (
-                                        <div key={item.id} className="flex justify-between py-2">
-                                            <span className="text-sm font-light" style={{color: '#666666'}}>{item.quantity}× {item.name}</span>
-                                            <span className="text-sm font-medium gold-accent">{item.price * item.quantity} Kč</span>
+                                        <div key={item.id} style={{ 
+                                            display: 'flex', 
+                                            justifyContent: 'space-between',
+                                            padding: '12px 0'
+                                        }}>
+                                            <span style={{ fontSize: '13px', fontWeight: '300', color: '#666' }}>
+                                                {item.quantity}× {item.name}
+                                            </span>
+                                            <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--gold)' }}>
+                                                {item.price * item.quantity} Kč
+                                            </span>
                                         </div>
                                     ))}
                                 </div>
@@ -401,8 +995,8 @@
                                     setStep('menu');
                                     setOrderConfirmed(null);
                                 }}
-                                className="w-full py-4 font-medium"
-                                style={{background: '#C9A55A', color: '#FFFFFF', letterSpacing: '3px', fontSize: '13px'}}
+                                className="btn-gold animate-fadeInUp stagger-4"
+                                style={{ width: '100%', marginTop: '24px' }}
                             >
                                 ZPĚT DO MENU
                             </button>
@@ -411,195 +1005,234 @@
                 );
             }
 
+            // Main Menu View
             return (
-                <div className="fade-in">
-                    <div className="sticky top-0 z-10 elegant-shadow" style={{background: '#FFFFFF', borderBottom: '2px solid #C9A55A'}}>
-                        <div className="p-6">
-                            <div className="flex justify-between items-center mb-3">
-                                <div>
-                                    <h1 className="text-3xl font-bold gold-accent" style={{letterSpacing: '8px'}}>
-                                        PALATINO
-                                    </h1>
-                                    <p className="text-xs font-light gold-accent" style={{letterSpacing: '4px', marginTop: '4px', opacity: 0.7}}>
-                                        KANTÝNA - {dayNames[currentDay]}
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={onAdminClick}
-                                    className="px-5 py-2 font-medium gold-accent"
-                                    style={{background: 'transparent', border: '1px solid #C9A55A', letterSpacing: '2px', fontSize: '11px'}}
-                                >
-                                    ADMIN
-                                </button>
+                <div style={{ paddingBottom: cart.length > 0 ? '380px' : '100px' }}>
+                    {/* Header */}
+                    <header className="header-glass" style={{ 
+                        position: 'sticky', 
+                        top: 0, 
+                        zIndex: 50,
+                        padding: '24px 20px'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                            <div className="animate-fadeInUp">
+                                <h1 style={{ 
+                                    fontFamily: "'Cormorant Garamond', serif",
+                                    fontSize: '36px',
+                                    fontWeight: '600',
+                                    color: 'var(--gold)',
+                                    letterSpacing: '10px',
+                                    lineHeight: 1
+                                }}>
+                                    PALATINO
+                                </h1>
+                                <p style={{ 
+                                    fontSize: '10px',
+                                    fontWeight: '400',
+                                    color: 'var(--gold)',
+                                    letterSpacing: '4px',
+                                    marginTop: '8px',
+                                    opacity: 0.7
+                                }}>
+                                    KANTÝNA • {dayNames[currentDay]}
+                                </p>
                             </div>
-                            
-                            <div className="flex gap-1 overflow-x-auto" style={{whiteSpace: 'nowrap'}}>
-                                {[1, 2, 3, 4, 5].map(day => (
-                                    <button
-                                        key={day}
-                                        onClick={() => setManualDay(day)}
-                                        className="px-3 py-2 font-medium text-xs"
-                                        style={{
-                                            background: currentDay === day ? '#C9A55A' : 'transparent',
-                                            color: currentDay === day ? '#FFFFFF' : '#C9A55A',
-                                            border: '1px solid #C9A55A',
-                                            letterSpacing: '1px',
-                                            minWidth: '70px'
-                                        }}
-                                    >
-                                        {['', 'PO', 'ÚT', 'ST', 'ČT', 'PÁ'][day]}
-                                    </button>
-                                ))}
-                                <button
-                                    onClick={() => setManualDay(null)}
-                                    className="px-3 py-2 font-medium text-xs"
-                                    style={{
-                                        background: manualDay === null ? '#C9A55A' : 'transparent',
-                                        color: manualDay === null ? '#FFFFFF' : '#C9A55A',
-                                        border: '1px solid #C9A55A',
-                                        letterSpacing: '1px',
-                                        minWidth: '70px'
-                                    }}
-                                >
-                                    AUTO
-                                </button>
-                            </div>
+                            <button onClick={onAdminClick} className="btn-outline animate-fadeInUp stagger-1">
+                                ADMIN
+                            </button>
                         </div>
-                    </div>
+                        
+                        {/* Day Selector */}
+                        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }} className="animate-fadeInUp stagger-2">
+                            {[1, 2, 3, 4, 5].map(day => (
+                                <button
+                                    key={day}
+                                    onClick={() => setManualDay(day)}
+                                    className={`day-pill ${currentDay === day ? 'active' : ''}`}
+                                >
+                                    {['', 'PO', 'ÚT', 'ST', 'ČT', 'PÁ'][day]}
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => setManualDay(null)}
+                                className={`day-pill ${manualDay === null ? 'active' : ''}`}
+                            >
+                                AUTO
+                            </button>
+                        </div>
+                    </header>
 
-                    <div className="p-4" style={{background: '#FFFFFF'}}>
-                        {['Polévka', 'Hlavní jídlo', 'Dezert'].map((category, idx) => {
-                            const items = menu.filter(item => item.category === category);
-                            if (items.length === 0) return null;
+                    {/* Menu Content */}
+                    <main style={{ padding: '0 20px' }}>
+                        {isLoading ? (
+                            <div style={{ padding: '40px 0' }}>
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="card shimmer" style={{ height: '120px', marginBottom: '16px' }} />
+                                ))}
+                            </div>
+                        ) : (
+                            <>
+                                {['Polévka', 'Hlavní jídlo', 'Příloha', 'Dezert'].map((category, catIdx) => {
+                                    const items = menu.filter(item => item.category === category);
+                                    if (items.length === 0) return null;
 
-                            return (
-                                <div key={category} className="mb-10 fade-in">
-                                    <div className="mb-6">
-                                        <h2 className="text-xl font-bold text-center gold-accent" style={{letterSpacing: '6px'}}>
-                                            {category.toUpperCase()}
-                                        </h2>
-                                        <div className="divider mt-3"></div>
-                                    </div>
-                                    <div className="space-y-4">
-                                        {items.map(item => {
-                                            const inCart = cart.find(c => c.id === item.id);
-                                            return (
-                                                <div key={item.id} className="menu-card p-6">
-                                                    <div className="mb-4">
-                                                        <h3 className="font-normal text-lg mb-3 leading-tight" style={{color: '#333333'}}>{item.name}</h3>
-                                                        <p className="text-2xl font-light gold-accent">
-                                                            {item.price} Kč
-                                                        </p>
-                                                    </div>
-                                                    
-                                                    {inCart ? (
-                                                        <div className="flex items-center justify-between p-3" style={{border: '1px solid #C9A55A', background: '#FFFFFF'}}>
-                                                            <button
-                                                                onClick={() => removeFromCart(item.id)}
-                                                                className="w-12 h-12 flex items-center justify-center text-xl font-light gold-accent"
-                                                                style={{background: '#FFFFFF', border: '1px solid #C9A55A'}}
-                                                            >
-                                                                −
-                                                            </button>
-                                                            <span className="font-medium text-lg gold-accent">{inCart.quantity}</span>
-                                                            <button
-                                                                onClick={() => addToCart(item)}
-                                                                className="w-12 h-12 flex items-center justify-center text-xl font-light gold-accent"
-                                                                style={{background: '#FFFFFF', border: '1px solid #C9A55A'}}
-                                                            >
-                                                                +
-                                                            </button>
-                                                        </div>
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => addToCart(item)}
-                                                            className="w-full py-4 font-medium"
-                                                            style={{background: '#C9A55A', color: '#FFFFFF', letterSpacing: '2px', fontSize: '13px'}}
+                                    return (
+                                        <section key={category}>
+                                            <div className="category-header">
+                                                <h2 className={`category-title animate-fadeInUp`} style={{ animationDelay: `${catIdx * 0.1}s` }}>
+                                                    {category}
+                                                </h2>
+                                            </div>
+                                            
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                                {items.map((item, idx) => {
+                                                    const inCart = cart.find(c => c.id === item.id);
+                                                    return (
+                                                        <div 
+                                                            key={item.id} 
+                                                            className="card animate-fadeInUp"
+                                                            style={{ 
+                                                                padding: '24px',
+                                                                animationDelay: `${(catIdx * 0.1) + (idx * 0.05)}s`
+                                                            }}
                                                         >
-                                                            PŘIDAT
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
+                                                            <div style={{ marginBottom: '20px' }}>
+                                                                <h3 style={{ 
+                                                                    fontFamily: "'Cormorant Garamond', serif",
+                                                                    fontSize: '20px',
+                                                                    fontWeight: '500',
+                                                                    color: 'var(--charcoal)',
+                                                                    lineHeight: 1.4,
+                                                                    marginBottom: '12px'
+                                                                }}>
+                                                                    {item.name}
+                                                                </h3>
+                                                                <div className="price-tag">{item.price}</div>
+                                                            </div>
+                                                            
+                                                            {inCart ? (
+                                                                <div className="qty-controls">
+                                                                    <button onClick={() => removeFromCart(item.id)} className="qty-btn">−</button>
+                                                                    <span style={{ 
+                                                                        fontSize: '18px', 
+                                                                        fontWeight: '500', 
+                                                                        color: 'var(--gold)' 
+                                                                    }}>{inCart.quantity}</span>
+                                                                    <button onClick={() => addToCart(item)} className="qty-btn">+</button>
+                                                                </div>
+                                                            ) : (
+                                                                <button onClick={() => addToCart(item)} className="btn-gold" style={{ width: '100%' }}>
+                                                                    PŘIDAT
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </section>
+                                    );
+                                })}
+                            </>
+                        )}
+                    </main>
 
+                    {/* Cart Panel */}
                     {cart.length > 0 && (
-                        <div className="fixed bottom-0 left-0 right-0 elegant-shadow slide-up" style={{background: '#FFFFFF', borderTop: '2px solid #C9A55A'}}>
-                            <div className="p-6">
-                                <div className="flex justify-between items-center mb-4 pb-3" style={{borderBottom: '1px solid rgba(201, 165, 90, 0.2)'}}>
-                                    <span className="font-medium text-sm gold-accent" style={{letterSpacing: '1px'}}>VÁŠ KOŠÍK ({cart.length})</span>
+                        <div className="cart-panel">
+                            <div style={{ padding: '28px 20px' }}>
+                                <div style={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between', 
+                                    alignItems: 'center',
+                                    marginBottom: '20px',
+                                    paddingBottom: '16px',
+                                    borderBottom: '1px solid rgba(201, 165, 90, 0.2)'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <span style={{ 
+                                            fontSize: '12px', 
+                                            fontWeight: '500', 
+                                            letterSpacing: '2px',
+                                            color: 'var(--gold)'
+                                        }}>VÁŠ KOŠÍK</span>
+                                        <span className="counter-badge">{totalItems}</span>
+                                    </div>
                                     <button
                                         onClick={() => setCart([])}
-                                        className="text-xs font-medium"
-                                        style={{color: '#999999', textDecoration: 'underline'}}
+                                        style={{ 
+                                            background: 'none',
+                                            border: 'none',
+                                            fontSize: '11px',
+                                            fontWeight: '400',
+                                            color: '#999',
+                                            textDecoration: 'underline',
+                                            cursor: 'pointer'
+                                        }}
                                     >
                                         Zrušit vše
                                     </button>
                                 </div>
 
-                                <div className="mb-4">
-                                    <label className="block text-xs font-medium mb-2 gold-accent" style={{letterSpacing: '2px'}}>
-                                        JMÉNO
-                                    </label>
+                                <div style={{ marginBottom: '16px' }}>
+                                    <label style={{ 
+                                        display: 'block',
+                                        fontSize: '10px',
+                                        fontWeight: '500',
+                                        letterSpacing: '2px',
+                                        color: 'var(--gold)',
+                                        marginBottom: '8px'
+                                    }}>JMÉNO</label>
                                     <input
                                         type="text"
                                         value={customerName}
                                         onChange={(e) => setCustomerName(e.target.value)}
                                         placeholder="Zadej své jméno"
-                                        className="w-full px-4 py-3 text-base font-light"
-                                        style={{border: '1px solid #C9A55A', background: '#FFFFFF'}}
+                                        className="input-elegant"
                                     />
                                 </div>
 
-                                <div className="mb-5">
-                                    <label className="block text-xs font-medium mb-2 gold-accent" style={{letterSpacing: '2px'}}>
-                                        ČAS VYZVEDNUTÍ
-                                    </label>
+                                <div style={{ marginBottom: '20px' }}>
+                                    <label style={{ 
+                                        display: 'block',
+                                        fontSize: '10px',
+                                        fontWeight: '500',
+                                        letterSpacing: '2px',
+                                        color: 'var(--gold)',
+                                        marginBottom: '8px'
+                                    }}>ČAS VYZVEDNUTÍ</label>
                                     <select
                                         value={pickupTime}
                                         onChange={(e) => setPickupTime(e.target.value)}
-                                        className="w-full px-4 py-3 text-base font-light"
-                                        style={{border: '1px solid #C9A55A', background: '#FFFFFF'}}
+                                        className="input-elegant"
+                                        style={{ cursor: 'pointer' }}
                                     >
-                                        <option value="10:00">10:00</option>
-                                        <option value="10:15">10:15</option>
-                                        <option value="10:30">10:30</option>
-                                        <option value="10:45">10:45</option>
-                                        <option value="11:00">11:00</option>
-                                        <option value="11:15">11:15</option>
-                                        <option value="11:30">11:30</option>
-                                        <option value="11:45">11:45</option>
-                                        <option value="12:00">12:00</option>
-                                        <option value="12:15">12:15</option>
-                                        <option value="12:30">12:30</option>
-                                        <option value="12:45">12:45</option>
-                                        <option value="13:00">13:00</option>
-                                        <option value="13:15">13:15</option>
-                                        <option value="13:30">13:30</option>
-                                        <option value="13:45">13:45</option>
-                                        <option value="14:00">14:00</option>
-                                        <option value="14:15">14:15</option>
-                                        <option value="14:30">14:30</option>
-                                        <option value="14:45">14:45</option>
-                                        <option value="15:00">15:00</option>
+                                        {['10:00', '10:15', '10:30', '10:45', '11:00', '11:15', '11:30', '11:45',
+                                          '12:00', '12:15', '12:30', '12:45', '13:00', '13:15', '13:30', '13:45',
+                                          '14:00', '14:15', '14:30', '14:45', '15:00'].map(time => (
+                                            <option key={time} value={time}>{time}</option>
+                                        ))}
                                     </select>
                                 </div>
 
-                                <div className="flex justify-between items-center mb-5 pb-4" style={{borderBottom: '1px solid #C9A55A'}}>
-                                    <span className="font-medium text-sm gold-accent" style={{letterSpacing: '1px'}}>CELKEM</span>
-                                    <span className="text-2xl font-light gold-accent">{totalPrice} Kč</span>
+                                <div style={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between', 
+                                    alignItems: 'center',
+                                    marginBottom: '20px',
+                                    paddingTop: '16px',
+                                    borderTop: '1px solid var(--gold)'
+                                }}>
+                                    <span style={{ 
+                                        fontSize: '12px', 
+                                        fontWeight: '500', 
+                                        letterSpacing: '2px',
+                                        color: 'var(--gold)'
+                                    }}>CELKEM</span>
+                                    <span className="price-tag" style={{ fontSize: '32px' }}>{totalPrice}</span>
                                 </div>
 
-                                <button
-                                    onClick={submitOrder}
-                                    className="w-full py-4 font-medium"
-                                    style={{background: '#C9A55A', color: '#FFFFFF', letterSpacing: '3px', fontSize: '13px'}}
-                                >
+                                <button onClick={submitOrder} className="btn-gold" style={{ width: '100%' }}>
                                     OBJEDNAT
                                 </button>
                             </div>
@@ -609,29 +1242,19 @@
             );
         }
 
-        // Admin rozhraní
+        // Admin View
         function AdminView({ isAuth, onAuth, onBack }) {
             const [password, setPassword] = useState('');
-            const [activeTab, setActiveTab] = useState('orders'); // 'orders' nebo 'menu'
+            const [activeTab, setActiveTab] = useState('orders');
             const [orders, setOrders] = useState([]);
             const [menu, setMenu] = useState([]);
-            const [editingItem, setEditingItem] = useState(null);
-            const [showAddForm, setShowAddForm] = useState(false);
-            const [formData, setFormData] = useState({ name: '', price: '', category: 'Hlavní jídlo' });
 
             useEffect(() => {
                 if (isAuth) {
-                    loadData();
+                    DB.getOrders((orders) => setOrders(orders));
+                    setMenu(DB.getMenu());
                 }
             }, [isAuth]);
-
-            const loadData = () => {
-                // Real-time listener pro objednávky
-                DB.getOrders((orders) => {
-                    setOrders(orders);
-                });
-                setMenu(DB.getMenu());
-            };
 
             const handleLogin = () => {
                 if (password === 'Kx9mPn2vLq4wRt8zFh6jYb3sGd7cNm5p') {
@@ -651,106 +1274,47 @@
                 }
             };
 
-            const toggleMenuItemAvailability = (itemId) => {
-                const updatedMenu = menu.map(item => 
-                    item.id === itemId ? { ...item, available: !item.available } : item
-                );
-                DB.saveMenu(updatedMenu);
-                loadData();
-            };
-
-            const addMenuItem = () => {
-                if (!formData.name.trim()) {
-                    alert('Vyplň název jídla');
-                    return;
-                }
-                if (!formData.price || formData.price <= 0) {
-                    alert('Vyplň platnou cenu');
-                    return;
-                }
-
-                const newItem = {
-                    id: Date.now(),
-                    name: formData.name.trim(),
-                    price: parseInt(formData.price),
-                    category: formData.category,
-                    available: true
-                };
-
-                const updatedMenu = [...menu, newItem];
-                DB.saveMenu(updatedMenu);
-                setFormData({ name: '', price: '', category: 'Hlavní jídlo' });
-                setShowAddForm(false);
-                loadData();
-            };
-
-            const startEdit = (item) => {
-                setEditingItem(item.id);
-                setFormData({
-                    name: item.name,
-                    price: item.price.toString(),
-                    category: item.category
-                });
-            };
-
-            const saveEdit = (itemId) => {
-                if (!formData.name.trim()) {
-                    alert('Vyplň název jídla');
-                    return;
-                }
-                if (!formData.price || formData.price <= 0) {
-                    alert('Vyplň platnou cenu');
-                    return;
-                }
-
-                const updatedMenu = menu.map(item => 
-                    item.id === itemId 
-                        ? { ...item, name: formData.name.trim(), price: parseInt(formData.price), category: formData.category }
-                        : item
-                );
-                DB.saveMenu(updatedMenu);
-                setEditingItem(null);
-                setFormData({ name: '', price: '', category: 'Hlavní jídlo' });
-                loadData();
-            };
-
-            const cancelEdit = () => {
-                setEditingItem(null);
-                setFormData({ name: '', price: '', category: 'Hlavní jídlo' });
-            };
-
-            const deleteMenuItem = (itemId) => {
-                if (confirm('Opravdu smazat toto jídlo z menu?')) {
-                    const updatedMenu = menu.filter(item => item.id !== itemId);
-                    DB.saveMenu(updatedMenu);
-                    loadData();
-                }
-            };
-
             if (!isAuth) {
                 return (
-                    <div className="min-h-screen bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center p-6">
-                        <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
-                            <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Admin přihlášení</h2>
+                    <div style={{ 
+                        minHeight: '100vh',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '20px',
+                        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)'
+                    }}>
+                        <div className="card animate-fadeInScale" style={{ 
+                            width: '100%',
+                            maxWidth: '400px',
+                            padding: '48px 32px'
+                        }}>
+                            <h2 style={{ 
+                                fontFamily: "'Cormorant Garamond', serif",
+                                fontSize: '28px',
+                                fontWeight: '500',
+                                textAlign: 'center',
+                                color: 'var(--gold)',
+                                letterSpacing: '4px',
+                                marginBottom: '32px'
+                            }}>ADMIN</h2>
+                            
+                            <Ornament />
+                            
                             <input
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
                                 placeholder="Zadej heslo"
-                                className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 mb-4 text-lg"
+                                className="input-elegant"
+                                style={{ marginTop: '24px', marginBottom: '16px' }}
                             />
-                            <button
-                                onClick={handleLogin}
-                                className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold text-lg mb-3"
-                            >
-                                Přihlásit se
+                            <button onClick={handleLogin} className="btn-gold" style={{ width: '100%', marginBottom: '12px' }}>
+                                PŘIHLÁSIT
                             </button>
-                            <button
-                                onClick={onBack}
-                                className="w-full bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold"
-                            >
-                                Zpět
+                            <button onClick={onBack} className="btn-outline" style={{ width: '100%' }}>
+                                ZPĚT
                             </button>
                         </div>
                     </div>
@@ -767,82 +1331,151 @@
             const completedOrders = todayOrders.filter(o => o.status === 'completed');
 
             return (
-                <div className="fade-in">
-                    <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-6 sticky top-0 z-10 shadow-lg">
-                        <div className="flex justify-between items-center mb-4">
-                            <h1 className="text-2xl font-bold">Admin panel</h1>
+                <div style={{ minHeight: '100vh', background: 'var(--cream)' }}>
+                    {/* Admin Header */}
+                    <header style={{ 
+                        background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+                        padding: '24px 20px',
+                        position: 'sticky',
+                        top: 0,
+                        zIndex: 50
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h1 style={{ 
+                                fontFamily: "'Cormorant Garamond', serif",
+                                fontSize: '24px',
+                                fontWeight: '500',
+                                color: 'var(--gold)',
+                                letterSpacing: '4px'
+                            }}>ADMIN PANEL</h1>
                             <button
-                                onClick={() => {
-                                    onAuth(false);
-                                    onBack();
+                                onClick={() => { onAuth(false); onBack(); }}
+                                style={{
+                                    background: 'rgba(255,255,255,0.1)',
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    color: '#fff',
+                                    padding: '10px 20px',
+                                    fontSize: '11px',
+                                    letterSpacing: '1px',
+                                    cursor: 'pointer'
                                 }}
-                                className="bg-white/20 px-4 py-2 rounded-lg text-sm"
                             >
-                                Odhlásit
+                                ODHLÁSIT
                             </button>
                         </div>
                         
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => setActiveTab('orders')}
-                                className={`flex-1 py-2 rounded-lg font-semibold ${activeTab === 'orders' ? 'bg-white text-gray-900' : 'bg-white/20'}`}
-                            >
-                                Objednávky ({pendingOrders.length})
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('menu')}
-                                className={`flex-1 py-2 rounded-lg font-semibold ${activeTab === 'menu' ? 'bg-white text-gray-900' : 'bg-white/20'}`}
-                            >
-                                Menu
-                            </button>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            {['orders', 'menu'].map(tab => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    style={{
+                                        flex: 1,
+                                        padding: '12px',
+                                        background: activeTab === tab ? 'var(--gold)' : 'rgba(255,255,255,0.1)',
+                                        color: activeTab === tab ? '#1a1a2e' : '#fff',
+                                        border: 'none',
+                                        fontSize: '12px',
+                                        fontWeight: '500',
+                                        letterSpacing: '1px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    {tab === 'orders' ? `OBJEDNÁVKY (${pendingOrders.length})` : 'MENU'}
+                                </button>
+                            ))}
                         </div>
-                    </div>
+                    </header>
 
-                    <div className="p-4">
+                    <main style={{ padding: '20px' }}>
                         {activeTab === 'orders' ? (
                             <>
                                 {pendingOrders.length === 0 ? (
-                                    <div className="text-center py-12 text-gray-500">
-                                        <div className="text-6xl mb-4">📋</div>
-                                        <p className="text-lg">Zatím žádné čekající objednávky</p>
+                                    <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                                        <div style={{ fontSize: '64px', marginBottom: '16px', opacity: 0.3 }}>📋</div>
+                                        <p style={{ color: '#999', fontSize: '14px' }}>Žádné čekající objednávky</p>
                                     </div>
                                 ) : (
                                     <>
-                                        <h2 className="text-xl font-bold text-gray-800 mb-4">Čekající objednávky</h2>
-                                        <div className="space-y-4 mb-8">
-                                            {pendingOrders.map(order => (
-                                                <div key={order.id} className="bg-white rounded-xl shadow-lg p-5 border-l-4 border-orange-500">
-                                                    <div className="flex justify-between items-start mb-3">
+                                        <h2 style={{ 
+                                            fontSize: '14px',
+                                            fontWeight: '500',
+                                            letterSpacing: '2px',
+                                            color: 'var(--gold)',
+                                            marginBottom: '16px'
+                                        }}>ČEKAJÍCÍ</h2>
+                                        
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px' }}>
+                                            {pendingOrders.map((order, idx) => (
+                                                <div 
+                                                    key={order.id} 
+                                                    className="card animate-fadeInUp"
+                                                    style={{ 
+                                                        padding: '24px',
+                                                        borderLeft: '4px solid #f59e0b',
+                                                        animationDelay: `${idx * 0.1}s`
+                                                    }}
+                                                >
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
                                                         <div>
-                                                            <div className="text-3xl font-bold text-orange-600 mb-1">{order.pin}</div>
-                                                            <p className="font-semibold text-lg">{order.customerName}</p>
-                                                            <p className="text-sm text-gray-600">Vyzvednutí: {order.pickupTime}</p>
+                                                            <div style={{ 
+                                                                fontFamily: "'Cormorant Garamond', serif",
+                                                                fontSize: '36px',
+                                                                fontWeight: '500',
+                                                                color: '#f59e0b'
+                                                            }}>{order.pin}</div>
+                                                            <div style={{ fontWeight: '500', fontSize: '16px' }}>{order.customerName}</div>
+                                                            <div style={{ fontSize: '13px', color: '#666' }}>Vyzvednutí: {order.pickupTime}</div>
                                                         </div>
-                                                        <div className="text-right">
-                                                            <p className="text-2xl font-bold text-indigo-600">{order.totalPrice} Kč</p>
-                                                            <p className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleTimeString('cs-CZ')}</p>
+                                                        <div style={{ textAlign: 'right' }}>
+                                                            <div className="price-tag">{order.totalPrice}</div>
+                                                            <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>
+                                                                {new Date(order.createdAt).toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' })}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     
-                                                    <div className="border-t pt-3 mb-3">
+                                                    <div style={{ borderTop: '1px solid rgba(0,0,0,0.1)', paddingTop: '12px', marginBottom: '16px' }}>
                                                         {order.items.map(item => (
-                                                            <div key={item.id} className="flex justify-between text-sm mb-1">
-                                                                <span>{item.quantity}× {item.name}</span>
-                                                                <span className="text-gray-600">{item.price * item.quantity} Kč</span>
+                                                            <div key={item.id} style={{ 
+                                                                display: 'flex', 
+                                                                justifyContent: 'space-between',
+                                                                fontSize: '13px',
+                                                                padding: '4px 0'
+                                                            }}>
+                                                                <span style={{ color: '#666' }}>{item.quantity}× {item.name}</span>
+                                                                <span style={{ color: 'var(--gold)' }}>{item.price * item.quantity} Kč</span>
                                                             </div>
                                                         ))}
                                                     </div>
-
-                                                    <div className="flex gap-2">
+                                                    
+                                                    <div style={{ display: 'flex', gap: '8px' }}>
                                                         <button
                                                             onClick={() => markAsCompleted(order.id)}
-                                                            className="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold"
+                                                            style={{
+                                                                flex: 1,
+                                                                padding: '14px',
+                                                                background: '#10b981',
+                                                                color: '#fff',
+                                                                border: 'none',
+                                                                fontSize: '12px',
+                                                                fontWeight: '500',
+                                                                letterSpacing: '1px',
+                                                                cursor: 'pointer'
+                                                            }}
                                                         >
-                                                            ✓ Vyzvednuto
+                                                            ✓ VYZVEDNUTO
                                                         </button>
                                                         <button
                                                             onClick={() => deleteOrder(order.id)}
-                                                            className="bg-red-600 text-white px-4 py-3 rounded-lg font-semibold"
+                                                            style={{
+                                                                padding: '14px 20px',
+                                                                background: '#ef4444',
+                                                                color: '#fff',
+                                                                border: 'none',
+                                                                fontSize: '14px',
+                                                                cursor: 'pointer'
+                                                            }}
                                                         >
                                                             ×
                                                         </button>
@@ -855,18 +1488,33 @@
 
                                 {completedOrders.length > 0 && (
                                     <>
-                                        <h2 className="text-xl font-bold text-gray-800 mb-4">Dokončené dnes</h2>
-                                        <div className="space-y-3">
+                                        <h2 style={{ 
+                                            fontSize: '14px',
+                                            fontWeight: '500',
+                                            letterSpacing: '2px',
+                                            color: '#999',
+                                            marginBottom: '16px'
+                                        }}>DOKONČENÉ DNES</h2>
+                                        
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                             {completedOrders.map(order => (
-                                                <div key={order.id} className="bg-gray-100 rounded-lg p-4 opacity-60">
-                                                    <div className="flex justify-between">
+                                                <div 
+                                                    key={order.id} 
+                                                    style={{ 
+                                                        background: 'rgba(0,0,0,0.02)',
+                                                        padding: '16px',
+                                                        border: '1px solid rgba(0,0,0,0.05)',
+                                                        opacity: 0.6
+                                                    }}
+                                                >
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                                         <div>
-                                                            <p className="font-semibold">{order.customerName}</p>
-                                                            <p className="text-sm text-gray-600">{order.pickupTime}</p>
+                                                            <div style={{ fontWeight: '500' }}>{order.customerName}</div>
+                                                            <div style={{ fontSize: '12px', color: '#666' }}>{order.pickupTime}</div>
                                                         </div>
-                                                        <div className="text-right">
-                                                            <p className="font-bold">{order.totalPrice} Kč</p>
-                                                            <p className="text-xs text-green-600">✓ Vyzvednuto</p>
+                                                        <div style={{ textAlign: 'right' }}>
+                                                            <div style={{ fontWeight: '500' }}>{order.totalPrice} Kč</div>
+                                                            <div style={{ fontSize: '11px', color: '#10b981' }}>✓ Vyzvednuto</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -877,160 +1525,47 @@
                             </>
                         ) : (
                             <>
-                                <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-xl font-bold text-gray-800">Správa menu</h2>
-                                    <button
-                                        onClick={() => setShowAddForm(!showAddForm)}
-                                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md"
-                                    >
-                                        {showAddForm ? '× Zrušit' : '+ Přidat jídlo'}
-                                    </button>
-                                </div>
-
-                                {showAddForm && (
-                                    <div className="bg-white rounded-xl shadow-lg p-5 mb-4 border-2 border-indigo-500">
-                                        <h3 className="font-bold text-lg mb-4">Nové jídlo</h3>
-                                        
-                                        <div className="mb-3">
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Kategorie</label>
-                                            <select
-                                                value={formData.category}
-                                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                                className="w-full border-2 border-gray-300 rounded-lg px-4 py-2"
-                                            >
-                                                <option value="Polévka">Polévka</option>
-                                                <option value="Hlavní jídlo">Hlavní jídlo</option>
-                                                <option value="Dezert">Dezert</option>
-                                            </select>
-                                        </div>
-
-                                        <div className="mb-3">
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Název jídla</label>
-                                            <input
-                                                type="text"
-                                                value={formData.name}
-                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                                placeholder="např. Smažený řízek s bramborem"
-                                                className="w-full border-2 border-gray-300 rounded-lg px-4 py-2"
-                                            />
-                                        </div>
-
-                                        <div className="mb-4">
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Cena (Kč)</label>
-                                            <input
-                                                type="number"
-                                                value={formData.price}
-                                                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                                placeholder="85"
-                                                className="w-full border-2 border-gray-300 rounded-lg px-4 py-2"
-                                            />
-                                        </div>
-
-                                        <button
-                                            onClick={addMenuItem}
-                                            className="w-full bg-green-600 text-white py-3 rounded-lg font-bold shadow-md"
+                                <h2 style={{ 
+                                    fontSize: '14px',
+                                    fontWeight: '500',
+                                    letterSpacing: '2px',
+                                    color: 'var(--gold)',
+                                    marginBottom: '16px'
+                                }}>DNEŠNÍ MENU</h2>
+                                
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    {menu.map((item, idx) => (
+                                        <div 
+                                            key={item.id} 
+                                            className="card animate-fadeInUp"
+                                            style={{ 
+                                                padding: '16px 20px',
+                                                animationDelay: `${idx * 0.05}s`
+                                            }}
                                         >
-                                            ✓ Přidat do menu
-                                        </button>
-                                    </div>
-                                )}
-
-                                <div className="space-y-3">
-                                    {menu.map(item => (
-                                        <div key={item.id} className={`bg-white rounded-xl shadow-md p-4 ${!item.available ? 'opacity-50' : ''}`}>
-                                            {editingItem === item.id ? (
-                                                <>
-                                                    <div className="mb-3">
-                                                        <label className="block text-xs font-semibold text-gray-600 mb-1">Kategorie</label>
-                                                        <select
-                                                            value={formData.category}
-                                                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                                            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm"
-                                                        >
-                                                            <option value="Polévka">Polévka</option>
-                                                            <option value="Hlavní jídlo">Hlavní jídlo</option>
-                                                            <option value="Dezert">Dezert</option>
-                                                        </select>
-                                                    </div>
-
-                                                    <div className="mb-3">
-                                                        <label className="block text-xs font-semibold text-gray-600 mb-1">Název</label>
-                                                        <input
-                                                            type="text"
-                                                            value={formData.name}
-                                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                                            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2"
-                                                        />
-                                                    </div>
-
-                                                    <div className="mb-3">
-                                                        <label className="block text-xs font-semibold text-gray-600 mb-1">Cena (Kč)</label>
-                                                        <input
-                                                            type="number"
-                                                            value={formData.price}
-                                                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                                            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2"
-                                                        />
-                                                    </div>
-
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            onClick={() => saveEdit(item.id)}
-                                                            className="flex-1 bg-green-600 text-white py-2 rounded-lg font-semibold"
-                                                        >
-                                                            ✓ Uložit
-                                                        </button>
-                                                        <button
-                                                            onClick={cancelEdit}
-                                                            className="flex-1 bg-gray-400 text-white py-2 rounded-lg font-semibold"
-                                                        >
-                                                            Zrušit
-                                                        </button>
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <div className="flex justify-between items-start mb-3">
-                                                        <div className="flex-1">
-                                                            <span className="text-xs font-semibold text-gray-500 uppercase">{item.category}</span>
-                                                            <h3 className="font-semibold text-gray-800">{item.name}</h3>
-                                                            <p className="text-indigo-600 font-bold">{item.price} Kč</p>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div className="grid grid-cols-3 gap-2">
-                                                        <button
-                                                            onClick={() => startEdit(item)}
-                                                            className="bg-blue-100 text-blue-700 py-2 rounded-lg font-semibold text-sm"
-                                                        >
-                                                            ✎ Upravit
-                                                        </button>
-                                                        <button
-                                                            onClick={() => toggleMenuItemAvailability(item.id)}
-                                                            className={`py-2 rounded-lg font-semibold text-sm ${item.available ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}
-                                                        >
-                                                            {item.available ? 'Skrýt' : 'Zobrazit'}
-                                                        </button>
-                                                        <button
-                                                            onClick={() => deleteMenuItem(item.id)}
-                                                            className="bg-red-100 text-red-700 py-2 rounded-lg font-semibold text-sm"
-                                                        >
-                                                            × Smazat
-                                                        </button>
-                                                    </div>
-                                                </>
-                                            )}
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div>
+                                                    <div style={{ 
+                                                        fontSize: '10px',
+                                                        fontWeight: '500',
+                                                        color: 'var(--gold)',
+                                                        letterSpacing: '1px',
+                                                        marginBottom: '4px'
+                                                    }}>{item.category.toUpperCase()}</div>
+                                                    <div style={{ fontWeight: '500' }}>{item.name}</div>
+                                                </div>
+                                                <div className="price-tag" style={{ fontSize: '20px' }}>{item.price}</div>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
                             </>
                         )}
-                    </div>
+                    </main>
                 </div>
             );
         }
 
-        // Spuštění aplikace
         ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
