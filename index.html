@@ -57,8 +57,8 @@
             overflow-x: hidden;
         }
         
-        /* Reactive Gradient Background */
-        .bg-gradient {
+        /* Ocean Waves Pattern - Aerial View with Foam */
+        .wave-pattern {
             position: fixed;
             top: 0;
             left: 0;
@@ -69,37 +69,72 @@
             overflow: hidden;
         }
         
-        .gradient-orb {
+        .wave-pattern svg {
             position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
-            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.8s ease;
+            width: 120%;
+            height: 120%;
+            top: -10%;
+            left: -10%;
         }
         
-        .gradient-orb-1 {
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(201, 165, 90, 0.3) 0%, transparent 70%);
-            top: -200px;
-            right: -200px;
+        /* Main wave movement */
+        .wave-main {
+            animation: waveRoll 15s ease-in-out infinite;
         }
         
-        .gradient-orb-2 {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(232, 213, 163, 0.25) 0%, transparent 70%);
-            bottom: -150px;
-            left: -150px;
+        .wave-main-2 {
+            animation: waveRoll 18s ease-in-out infinite reverse;
+            animation-delay: -5s;
         }
         
-        .gradient-orb-3 {
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(168, 139, 61, 0.2) 0%, transparent 70%);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        .wave-main-3 {
+            animation: waveRoll 20s ease-in-out infinite;
+            animation-delay: -10s;
+        }
+        
+        @keyframes waveRoll {
+            0%, 100% { 
+                transform: translateX(0) translateY(0);
+            }
+            25% {
+                transform: translateX(2%) translateY(-1%);
+            }
+            50% { 
+                transform: translateX(3%) translateY(-2%);
+            }
+            75% {
+                transform: translateX(1%) translateY(-1%);
+            }
+        }
+        
+        /* Foam particles floating */
+        .foam-group {
+            animation: foamFloat 12s ease-in-out infinite;
+        }
+        
+        .foam-group-2 {
+            animation: foamFloat 15s ease-in-out infinite;
+            animation-delay: -4s;
+        }
+        
+        .foam-group-3 {
+            animation: foamFloat 18s ease-in-out infinite;
+            animation-delay: -8s;
+        }
+        
+        @keyframes foamFloat {
+            0%, 100% { 
+                transform: translate(0, 0) scale(1);
+                opacity: 0.6;
+            }
+            33% {
+                transform: translate(1%, -0.5%) scale(1.02);
+                opacity: 0.7;
+            }
+            66% { 
+                transform: translate(2%, 0.5%) scale(0.98);
+                opacity: 0.5;
+            }
         }
         
         /* Subtle grain texture overlay */
@@ -111,179 +146,9 @@
             height: 100%;
             pointer-events: none;
             z-index: 1;
-            opacity: 0.03;
+            opacity: 0.02;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
         }
-        
-        /* Elegant line accents */
-        .line-accent {
-            position: fixed;
-            background: linear-gradient(180deg, transparent, var(--gold), transparent);
-            opacity: 0.08;
-            pointer-events: none;
-            z-index: 1;
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-        
-        .line-accent-left {
-            width: 1px;
-            height: 100%;
-            left: 10%;
-            top: 0;
-        }
-        
-        .line-accent-right {
-            width: 1px;
-            height: 100%;
-            right: 10%;
-            top: 0;
-        }
-        
-        /* Animated Geometric Pattern */
-        .geo-pattern {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-        
-        .geo-pattern svg {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
-        
-        .pattern-line {
-            stroke: var(--gold);
-            stroke-width: 0.5;
-            fill: none;
-            opacity: 0.08;
-        }
-        
-        .pattern-circle {
-            stroke: var(--gold);
-            stroke-width: 0.5;
-            fill: none;
-            opacity: 0.06;
-        }
-        
-        .pattern-diamond {
-            fill: var(--gold);
-            opacity: 0.04;
-        }
-        
-        /* Flowing waves animation */
-        .wave-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 40%;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.5;
-            overflow: hidden;
-        }
-        
-        .wave {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 200%;
-            height: 100%;
-            background: linear-gradient(180deg, transparent 0%, rgba(201, 165, 90, 0.03) 100%);
-            transform-origin: bottom;
-        }
-        
-        .wave-line {
-            position: absolute;
-            bottom: 0;
-            left: -50%;
-            width: 200%;
-            height: 100%;
-            fill: none;
-            stroke: var(--gold);
-            stroke-width: 1;
-            opacity: 0.1;
-            animation: waveFlow 12s ease-in-out infinite;
-        }
-        
-        .wave-line:nth-child(2) {
-            opacity: 0.07;
-            animation-delay: -3s;
-            animation-duration: 15s;
-        }
-        
-        .wave-line:nth-child(3) {
-            opacity: 0.05;
-            animation-delay: -6s;
-            animation-duration: 18s;
-        }
-        
-        @keyframes waveFlow {
-            0%, 100% { transform: translateX(0) translateY(0); }
-            50% { transform: translateX(25%) translateY(-10px); }
-        }
-        
-        /* Morphing blob */
-        .morph-blob {
-            position: fixed;
-            width: 500px;
-            height: 500px;
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.06;
-            filter: blur(60px);
-        }
-        
-        .morph-blob svg {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .blob-path {
-            fill: var(--gold);
-            animation: morphBlob 20s ease-in-out infinite;
-        }
-        
-        @keyframes morphBlob {
-            0%, 100% {
-                d: path("M440,320C440,400,360,480,280,480C200,480,120,400,120,320C120,240,200,160,280,160C360,160,440,240,440,320Z");
-            }
-            25% {
-                d: path("M420,300C450,380,380,460,300,480C220,500,140,440,120,360C100,280,160,180,240,160C320,140,390,220,420,300Z");
-            }
-            50% {
-                d: path("M460,340C460,420,380,500,280,480C180,460,100,380,120,300C140,220,220,140,320,160C420,180,460,260,460,340Z");
-            }
-            75% {
-                d: path("M400,280C440,360,400,460,320,480C240,500,140,420,120,340C100,260,180,160,280,160C380,160,360,200,400,280Z");
-            }
-        }
-        
-        /* Corner ornaments */
-        .corner-ornament {
-            position: fixed;
-            width: 150px;
-            height: 150px;
-            pointer-events: none;
-            z-index: 1;
-            opacity: 0.15;
-        }
-        
-        .corner-ornament svg {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .corner-tl { top: 0; left: 0; }
-        .corner-tr { top: 0; right: 0; transform: scaleX(-1); }
-        .corner-bl { bottom: 0; left: 0; transform: scaleY(-1); }
-        .corner-br { bottom: 0; right: 0; transform: scale(-1); }
         
         /* Typography */
         h1, h2, h3 {
@@ -877,108 +742,199 @@
             }
         };
 
-        // Animated Background Component
+        // Animated Ocean Waves Background - Aerial View with Foam
         function AnimatedBackground() {
-            const [scrollY, setScrollY] = useState(0);
+            // Generate random foam particles
+            const generateFoamParticles = (count, seed) => {
+                const particles = [];
+                for (let i = 0; i < count; i++) {
+                    const random = (seed * (i + 1) * 9301 + 49297) % 233280;
+                    const x = (random / 233280) * 100;
+                    const y = ((random * 7) % 233280) / 233280 * 100;
+                    const size = 3 + ((random * 3) % 233280) / 233280 * 12;
+                    const opacity = 0.08 + ((random * 11) % 233280) / 233280 * 0.15;
+                    particles.push({ x, y, size, opacity });
+                }
+                return particles;
+            };
             
-            useEffect(() => {
-                const handleScroll = () => {
-                    setScrollY(window.scrollY);
-                };
-                window.addEventListener('scroll', handleScroll, { passive: true });
-                return () => window.removeEventListener('scroll', handleScroll);
-            }, []);
-            
-            const scrollFactor = Math.min(scrollY / 800, 1);
+            const foam1 = generateFoamParticles(25, 1);
+            const foam2 = generateFoamParticles(20, 2);
+            const foam3 = generateFoamParticles(15, 3);
             
             return (
                 <>
-                    {/* Gradient Orbs */}
-                    <div className="bg-gradient">
-                        <div 
-                            className="gradient-orb gradient-orb-1"
-                            style={{
-                                transform: `translateY(${scrollY * 0.15}px)`,
-                                opacity: 0.35 - scrollFactor * 0.15
-                            }}
-                        />
-                        <div 
-                            className="gradient-orb gradient-orb-2"
-                            style={{
-                                transform: `translateY(${-scrollY * 0.1}px)`,
-                                opacity: 0.25 + scrollFactor * 0.1
-                            }}
-                        />
-                    </div>
-                    
-                    {/* Morphing Blob */}
-                    <div 
-                        className="morph-blob" 
-                        style={{ 
-                            top: '20%', 
-                            right: '-100px',
-                            transform: `translateY(${scrollY * 0.2}px) scale(${1 + scrollFactor * 0.3})`
-                        }}
-                    >
-                        <svg viewBox="0 0 560 560">
-                            <path className="blob-path" />
-                        </svg>
-                    </div>
-                    
-                    <div 
-                        className="morph-blob" 
-                        style={{ 
-                            bottom: '10%', 
-                            left: '-150px',
-                            transform: `translateY(${-scrollY * 0.15}px) scale(${0.8 + scrollFactor * 0.2})`,
-                            animationDelay: '-10s'
-                        }}
-                    >
-                        <svg viewBox="0 0 560 560">
-                            <path className="blob-path" style={{ animationDelay: '-10s' }} />
-                        </svg>
-                    </div>
-                    
-                    {/* Wave Lines */}
-                    <div className="wave-container" style={{ opacity: 0.4 + scrollFactor * 0.3 }}>
-                        <svg className="wave-line" viewBox="0 0 1440 320" preserveAspectRatio="none">
-                            <path d="M0,160 C320,300,420,100,640,160 C880,220,1000,80,1200,160 C1400,240,1440,160,1440,160 L1440,320 L0,320 Z" 
-                                  fill="none" stroke="currentColor" strokeWidth="1.5"/>
-                        </svg>
-                        <svg className="wave-line" viewBox="0 0 1440 320" preserveAspectRatio="none">
-                            <path d="M0,200 C200,100,400,250,640,180 C880,110,1100,280,1280,200 C1380,150,1440,200,1440,200 L1440,320 L0,320 Z" 
-                                  fill="none" stroke="currentColor" strokeWidth="1"/>
-                        </svg>
-                        <svg className="wave-line" viewBox="0 0 1440 320" preserveAspectRatio="none">
-                            <path d="M0,240 C160,180,320,280,560,220 C800,160,960,300,1200,240 C1360,200,1440,240,1440,240 L1440,320 L0,320 Z" 
-                                  fill="none" stroke="currentColor" strokeWidth="0.75"/>
-                        </svg>
-                    </div>
-                    
-                    {/* Corner Ornaments */}
-                    <div className="corner-ornament corner-tl" style={{ opacity: 0.12 - scrollFactor * 0.08 }}>
-                        <svg viewBox="0 0 150 150">
-                            <path d="M0,0 L150,0 L150,10 L10,10 L10,150 L0,150 Z" fill="var(--gold)" opacity="0.5"/>
-                            <path d="M0,30 L120,30 L120,40 L10,40 L10,150 L0,150 Z" fill="none" stroke="var(--gold)" strokeWidth="0.5"/>
-                            <circle cx="30" cy="30" r="3" fill="var(--gold)"/>
-                            <path d="M50,0 L50,50 L0,50" fill="none" stroke="var(--gold)" strokeWidth="0.5" opacity="0.5"/>
-                        </svg>
-                    </div>
-                    <div className="corner-ornament corner-tr" style={{ opacity: 0.12 - scrollFactor * 0.08 }}>
-                        <svg viewBox="0 0 150 150">
-                            <path d="M0,0 L150,0 L150,10 L10,10 L10,150 L0,150 Z" fill="var(--gold)" opacity="0.5"/>
-                            <path d="M0,30 L120,30 L120,40 L10,40 L10,150 L0,150 Z" fill="none" stroke="var(--gold)" strokeWidth="0.5"/>
-                            <circle cx="30" cy="30" r="3" fill="var(--gold)"/>
-                            <path d="M50,0 L50,50 L0,50" fill="none" stroke="var(--gold)" strokeWidth="0.5" opacity="0.5"/>
+                    <div className="wave-pattern">
+                        <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
+                            <defs>
+                                {/* Elegant gold gradient for water body */}
+                                <linearGradient id="waterBody" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stopColor="#C9A55A" stopOpacity="0.12"/>
+                                    <stop offset="100%" stopColor="#A88B3D" stopOpacity="0.06"/>
+                                </linearGradient>
+                                
+                                {/* Soft foam gradient */}
+                                <linearGradient id="foamCrest" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" stopColor="#F5ECD9" stopOpacity="0.5"/>
+                                    <stop offset="50%" stopColor="#E8D5A3" stopOpacity="0.35"/>
+                                    <stop offset="100%" stopColor="#C9A55A" stopOpacity="0.1"/>
+                                </linearGradient>
+                                
+                                {/* Radial for foam spots */}
+                                <radialGradient id="foamSpot">
+                                    <stop offset="0%" stopColor="#F5ECD9" stopOpacity="0.4"/>
+                                    <stop offset="60%" stopColor="#E8D5A3" stopOpacity="0.15"/>
+                                    <stop offset="100%" stopColor="#C9A55A" stopOpacity="0"/>
+                                </radialGradient>
+                                
+                                {/* Soft blur filter */}
+                                <filter id="softBlur">
+                                    <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+                                </filter>
+                                
+                                <filter id="gentleBlur">
+                                    <feGaussianBlur in="SourceGraphic" stdDeviation="4" />
+                                </filter>
+                            </defs>
+                            
+                            {/* Main Wave 1 */}
+                            <g className="wave-main">
+                                {/* Wave body - smooth fill */}
+                                <path d="M-100,280 
+                                    C50,240 150,320 300,270 
+                                    C450,220 550,340 700,260 
+                                    C850,180 950,300 1100,240
+                                    L1100,450 
+                                    C950,400 850,480 700,420 
+                                    C550,360 450,460 300,400 
+                                    C150,340 50,420 -100,380 Z" 
+                                    fill="url(#waterBody)"/>
+                                
+                                {/* Foam crest - soft gradient band */}
+                                <path d="M-100,285 
+                                    C50,245 150,325 300,275 
+                                    C450,225 550,345 700,265 
+                                    C850,185 950,305 1100,245
+                                    L1100,275 
+                                    C950,335 850,215 700,295 
+                                    C550,375 450,255 300,305 
+                                    C150,355 50,275 -100,315 Z" 
+                                    fill="url(#foamCrest)"
+                                    filter="url(#softBlur)"/>
+                            </g>
+                            
+                            {/* Main Wave 2 */}
+                            <g className="wave-main-2">
+                                <path d="M-100,520 
+                                    C100,470 200,560 400,500 
+                                    C600,440 700,570 900,490 
+                                    C1000,450 1050,520 1100,480
+                                    L1100,680 
+                                    C1000,640 900,720 700,660 
+                                    C500,600 400,700 200,640 
+                                    C0,580 -50,660 -100,620 Z" 
+                                    fill="url(#waterBody)" 
+                                    fillOpacity="0.8"/>
+                                
+                                <path d="M-100,525 
+                                    C100,475 200,565 400,505 
+                                    C600,445 700,575 900,495 
+                                    C1000,455 1050,525 1100,485
+                                    L1100,515 
+                                    C1000,555 900,525 700,545 
+                                    C500,565 400,535 200,555 
+                                    C0,575 -50,545 -100,555 Z" 
+                                    fill="url(#foamCrest)"
+                                    filter="url(#softBlur)"/>
+                            </g>
+                            
+                            {/* Main Wave 3 */}
+                            <g className="wave-main-3">
+                                <path d="M-100,750 
+                                    C80,700 180,790 350,730 
+                                    C520,670 620,800 800,720 
+                                    C920,665 1000,750 1100,700
+                                    L1100,900 
+                                    C980,860 880,940 700,880 
+                                    C520,820 420,920 250,860 
+                                    C80,800 -20,880 -100,840 Z" 
+                                    fill="url(#waterBody)" 
+                                    fillOpacity="0.6"/>
+                                
+                                <path d="M-100,755 
+                                    C80,705 180,795 350,735 
+                                    C520,675 620,805 800,725 
+                                    C920,670 1000,755 1100,705
+                                    L1100,730 
+                                    C980,770 880,730 700,755 
+                                    C520,780 420,745 250,770 
+                                    C80,795 -20,760 -100,780 Z" 
+                                    fill="url(#foamCrest)"
+                                    filter="url(#softBlur)"/>
+                            </g>
+                            
+                            {/* Scattered foam - organic shapes */}
+                            <g className="foam-group" filter="url(#gentleBlur)">
+                                {foam1.map((p, i) => (
+                                    <ellipse 
+                                        key={i} 
+                                        cx={p.x * 10} 
+                                        cy={p.y * 10} 
+                                        rx={p.size * 1.5} 
+                                        ry={p.size} 
+                                        fill="url(#foamSpot)"
+                                        opacity={p.opacity}
+                                        transform={`rotate(${p.x * 3.6}, ${p.x * 10}, ${p.y * 10})`}
+                                    />
+                                ))}
+                            </g>
+                            
+                            <g className="foam-group-2" filter="url(#gentleBlur)">
+                                {foam2.map((p, i) => (
+                                    <ellipse 
+                                        key={i} 
+                                        cx={p.x * 10} 
+                                        cy={p.y * 10} 
+                                        rx={p.size} 
+                                        ry={p.size * 0.7} 
+                                        fill="#E8D5A3"
+                                        opacity={p.opacity * 0.6}
+                                        transform={`rotate(${p.y * 3.6}, ${p.x * 10}, ${p.y * 10})`}
+                                    />
+                                ))}
+                            </g>
+                            
+                            <g className="foam-group-3" filter="url(#gentleBlur)">
+                                {foam3.map((p, i) => (
+                                    <ellipse 
+                                        key={i} 
+                                        cx={p.x * 10} 
+                                        cy={p.y * 10} 
+                                        rx={p.size * 0.8} 
+                                        ry={p.size * 0.5} 
+                                        fill="#F5ECD9"
+                                        opacity={p.opacity * 0.4}
+                                    />
+                                ))}
+                            </g>
+                            
+                            {/* Subtle distant wave hint */}
+                            <g className="wave-main" style={{ opacity: 0.4 }}>
+                                <path d="M-100,80 
+                                    C150,40 250,120 450,70 
+                                    C650,20 750,110 950,60 
+                                    C1050,30 1080,80 1100,50
+                                    L1100,120 
+                                    C1050,150 950,100 750,130 
+                                    C550,160 450,110 250,140 
+                                    C50,170 -50,120 -100,150 Z" 
+                                    fill="url(#waterBody)"/>
+                            </g>
                         </svg>
                     </div>
                     
                     {/* Grain Overlay */}
                     <div className="grain-overlay" />
-                    
-                    {/* Side Lines */}
-                    <div className="line-accent line-accent-left" style={{ opacity: 0.04 + scrollFactor * 0.04 }} />
-                    <div className="line-accent line-accent-right" style={{ opacity: 0.04 + scrollFactor * 0.04 }} />
                 </>
             );
         }
@@ -1021,7 +977,6 @@
             return (
                 <div style={{ minHeight: '100vh', position: 'relative' }}>
                     <AnimatedBackground />
-                    <ScrollProgress />
                     
                     <div style={{ position: 'relative', zIndex: 2 }}>
                         {view === 'customer' ? (
@@ -1314,6 +1269,52 @@
                                 {[1, 2, 3].map(i => (
                                     <div key={i} className="card shimmer" style={{ height: '120px', marginBottom: '16px' }} />
                                 ))}
+                            </div>
+                        ) : menu.length === 0 || (menu.length === 1 && !menu[0].available) ? (
+                            /* Empty menu - Weekend or no items */
+                            <div style={{ 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                alignItems: 'center', 
+                                justifyContent: 'center',
+                                minHeight: '60vh',
+                                textAlign: 'center',
+                                padding: '40px 20px'
+                            }}>
+                                <div style={{
+                                    width: '80px',
+                                    height: '80px',
+                                    border: '2px solid var(--gold)',
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginBottom: '32px',
+                                    opacity: 0.6
+                                }}>
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5">
+                                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </div>
+                                <h2 style={{
+                                    fontFamily: "'Cormorant Garamond', serif",
+                                    fontSize: '28px',
+                                    fontWeight: '500',
+                                    color: 'var(--gold)',
+                                    letterSpacing: '4px',
+                                    marginBottom: '16px'
+                                }}>
+                                    DNES ZAVŘENO
+                                </h2>
+                                <p style={{
+                                    fontSize: '14px',
+                                    fontWeight: '300',
+                                    color: '#999',
+                                    maxWidth: '280px',
+                                    lineHeight: 1.6
+                                }}>
+                                    O víkendu polední menu nenabízíme. Těšíme se na vás v pondělí!
+                                </p>
                             </div>
                         ) : (
                             <>
