@@ -12,26 +12,72 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Roboto:wght@300;400;500;700&display=swap');
+        
         * {
             -webkit-tap-highlight-color: transparent;
+            font-family: 'Roboto', sans-serif;
         }
         body {
             overscroll-behavior: none;
             touch-action: pan-y;
+            background: #FFFFFF;
+        }
+        h1, h2 {
+            font-family: 'Playfair Display', serif;
+        }
+        h3 {
+            font-family: 'Roboto', sans-serif;
         }
         .fade-in {
-            animation: fadeIn 0.3s ease-in;
+            animation: fadeIn 0.6s ease-in;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .slide-up {
-            animation: slideUp 0.4s ease-out;
+            animation: slideUp 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
         @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .elegant-shadow {
+            box-shadow: 0 5px 20px rgba(201, 165, 90, 0.15);
+        }
+        .menu-card {
+            background: #FFFFFF;
+            border: 1px solid #C9A55A;
+            transition: all 0.3s ease;
+        }
+        .menu-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(201, 165, 90, 0.25);
+        }
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 180px;
+            font-weight: 900;
+            color: rgba(201, 165, 90, 0.08);
+            pointer-events: none;
+            z-index: 9999;
+            user-select: none;
+            letter-spacing: 35px;
+            white-space: nowrap;
+            text-shadow: 2px 2px 4px rgba(201, 165, 90, 0.1);
+            font-family: 'Playfair Display', serif;
+        }
+        .gold-accent {
+            color: #C9A55A;
+        }
+        .divider {
+            height: 1px;
+            background: #C9A55A;
+            opacity: 0.3;
         }
     </style>
 </head>
@@ -43,18 +89,88 @@
 
         // Simulace localStorage databáze
         const DB = {
-            getMenu: () => {
-                const menu = localStorage.getItem('menu');
-                return menu ? JSON.parse(menu) : [
-                    { id: 1, name: 'Smažený řízek s bramborovou kaší', price: 85, category: 'Hlavní jídlo', available: true },
-                    { id: 2, name: 'Kuřecí kung-pao s rýží', price: 75, category: 'Hlavní jídlo', available: true },
-                    { id: 3, name: 'Bramboračka s klobásou', price: 45, category: 'Polévka', available: true },
-                    { id: 4, name: 'Čočková polévka', price: 40, category: 'Polévka', available: true },
-                    { id: 5, name: 'Jablečný závin', price: 30, category: 'Dezert', available: true }
-                ];
+            getMenu: (manualDay = null) => {
+                // Denní menu podle dne v týdnu (automaticky se mění)
+                const dayOfWeek = manualDay !== null ? manualDay : new Date().getDay(); // 0 = Neděle, 1 = Pondělí, ... 5 = Pátek
+                
+                // Menu pro každý den (PONDĚLÍ-PÁTEK)
+                const dailyMenus = {
+                    1: [ // PONDĚLÍ
+                        { id: 1, name: 'Fazolová polévka se sýrem feta', price: 49, category: 'Polévka', available: true },
+                        { id: 2, name: 'Kuře na paprice s těstovinami', price: 169, category: 'Hlavní jídlo', available: true },
+                        { id: 3, name: 'Vepřová panenka pečená ve slanině', price: 199, category: 'Hlavní jídlo', available: true },
+                        { id: 4, name: 'Trhané vepřové maso s cheddarem a jalapeños', price: 179, category: 'Hlavní jídlo', available: true },
+                        { id: 5, name: 'Hříbkové rizoto s kuřecím masem', price: 179, category: 'Hlavní jídlo', available: true },
+                        { id: 6, name: 'Penne alla arabiata', price: 169, category: 'Hlavní jídlo', available: true },
+                        { id: 7, name: 'Pizza con prosciutto cotto formagio Ø 29cm', price: 189, category: 'Hlavní jídlo', available: true },
+                        { id: 8, name: 'Salámová pizza Ø 29cm', price: 179, category: 'Hlavní jídlo', available: true },
+                        { id: 9, name: 'Linguine carbonara', price: 198, category: 'Hlavní jídlo', available: true },
+                        { id: 10, name: 'Šunková pizza Ø 29cm', price: 179, category: 'Hlavní jídlo', available: true }
+                    ],
+                    2: [ // ÚTERÝ
+                        { id: 1, name: 'Hovězí vývar s játrovými knedlíčky', price: 59, category: 'Polévka', available: true },
+                        { id: 2, name: 'Španělský ptáček', price: 199, category: 'Hlavní jídlo', available: true },
+                        { id: 3, name: 'Halušky s uzeným masem, bílé zelí', price: 169, category: 'Hlavní jídlo', available: true },
+                        { id: 4, name: 'Wrap s trhaným vepřovým masem', price: 179, category: 'Hlavní jídlo', available: true },
+                        { id: 5, name: 'Salát s kuřecím masem a těstovinami', price: 189, category: 'Hlavní jídlo', available: true },
+                        { id: 6, name: 'Pizza se šunkou a salámem Ø 29cm', price: 179, category: 'Hlavní jídlo', available: true },
+                        { id: 7, name: 'Cheese burger', price: 189, category: 'Hlavní jídlo', available: true },
+                        { id: 8, name: 'Hranolky', price: 59, category: 'Příloha', available: true },
+                        { id: 9, name: 'Pinsa mexicana Ø 29cm', price: 208, category: 'Hlavní jídlo', available: true },
+                        { id: 10, name: 'Gnocchi potenza', price: 189, category: 'Hlavní jídlo', available: true },
+                        { id: 11, name: 'Penne bolognese', price: 178, category: 'Hlavní jídlo', available: true }
+                    ],
+                    3: [ // STŘEDA
+                        { id: 1, name: 'Tomatová polévka se sýrem', price: 59, category: 'Polévka', available: true },
+                        { id: 2, name: 'Hovězí guláš', price: 189, category: 'Hlavní jídlo', available: true },
+                        { id: 3, name: 'Kuřecí řízek s vídeňským bramborovým salátem', price: 189, category: 'Hlavní jídlo', available: true },
+                        { id: 4, name: 'Linguine s vepřovou panenkou', price: 189, category: 'Hlavní jídlo', available: true },
+                        { id: 5, name: 'Salámová pizza Ø 29 cm', price: 179, category: 'Hlavní jídlo', available: true },
+                        { id: 6, name: 'Linguine la crema', price: 189, category: 'Hlavní jídlo', available: true },
+                        { id: 7, name: 'Pizza Hawaii Ø 29 cm', price: 179, category: 'Hlavní jídlo', available: true },
+                        { id: 8, name: 'Linguine s lososem', price: 199, category: 'Hlavní jídlo', available: true },
+                        { id: 9, name: 'Houbovo smetanová pinsa Ø 32 cm', price: 208, category: 'Hlavní jídlo', available: true },
+                        { id: 10, name: 'Lasagne s kuřecím masem a špenátem', price: 239, category: 'Hlavní jídlo', available: true }
+                    ],
+                    4: [ // ČTVRTEK
+                        { id: 1, name: 'Bramboračka', price: 49, category: 'Polévka', available: true },
+                        { id: 2, name: 'Hovězí ragú po Burgundsku', price: 199, category: 'Hlavní jídlo', available: true },
+                        { id: 3, name: 'Kuřecí steak s tyrolskou šunkou', price: 189, category: 'Hlavní jídlo', available: true },
+                        { id: 4, name: 'Wrap s kuřecími stripsy', price: 179, category: 'Hlavní jídlo', available: true },
+                        { id: 5, name: 'Šunková pizza Ø 29 cm', price: 179, category: 'Hlavní jídlo', available: true },
+                        { id: 6, name: 'Pizza carbonara Ø 29 cm', price: 179, category: 'Hlavní jídlo', available: true },
+                        { id: 7, name: 'Bramborové noky s kuřecím masem v sýrové omáčce', price: 189, category: 'Hlavní jídlo', available: true },
+                        { id: 8, name: 'Penne s vepřovou panenkou a špenátem', price: 188, category: 'Hlavní jídlo', available: true },
+                        { id: 9, name: 'Pinsa s kuřecím masem a BBQ omáčkou Ø 32 cm', price: 218, category: 'Hlavní jídlo', available: true },
+                        { id: 10, name: 'Linguine aglio olio peperoncino', price: 158, category: 'Hlavní jídlo', available: true }
+                    ],
+                    5: [ // PÁTEK
+                        { id: 1, name: 'Špenátový krém se sýrovými krutony', price: 59, category: 'Polévka', available: true },
+                        { id: 2, name: 'Kuřecí specatino se šťouchanými brambory', price: 189, category: 'Hlavní jídlo', available: true },
+                        { id: 3, name: 'Obalovaný sýr Gouda', price: 179, category: 'Hlavní jídlo', available: true },
+                        { id: 4, name: 'Salát s kuřecím masem', price: 179, category: 'Hlavní jídlo', available: true },
+                        { id: 5, name: 'Pizza se šunkou a salámem Ø 29 cm', price: 179, category: 'Hlavní jídlo', available: true },
+                        { id: 6, name: 'Pizza margharita Ø 29 cm', price: 169, category: 'Hlavní jídlo', available: true },
+                        { id: 7, name: 'Rizoto s krůtím masem', price: 189, category: 'Hlavní jídlo', available: true },
+                        { id: 8, name: 'Penne s kuřecím masem a špenátem', price: 198, category: 'Hlavní jídlo', available: true },
+                        { id: 9, name: 'Šunková pizza Ø 29 cm', price: 179, category: 'Hlavní jídlo', available: true },
+                        { id: 10, name: 'Kuřecí stripsy obalené v cornflakes', price: 169, category: 'Hlavní jídlo', available: true }
+                    ]
+                };
+                
+                // Pokud je Pondělí-Pátek (1-5), vrať denní menu, jinak výchozí menu
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                    return dailyMenus[dayOfWeek];
+                } else {
+                    // Víkend - vrať nějaké základní menu nebo prázdné
+                    return [
+                        { id: 1, name: 'O víkendu nemáme polední menu', price: 0, category: 'Info', available: false }
+                    ];
+                }
             },
             saveMenu: (menu) => {
-                localStorage.setItem('menu', JSON.stringify(menu));
+                // Menu se nemění manuálně - je automatické podle dne
+                // localStorage.setItem('menu', JSON.stringify(menu));
             },
             getOrders: () => {
                 const orders = localStorage.getItem('orders');
@@ -85,11 +201,17 @@
         function App() {
             const [view, setView] = useState('customer'); // 'customer' nebo 'admin'
             const [isAdminAuth, setIsAdminAuth] = useState(false);
+            const [manualDay, setManualDay] = useState(null); // null = automatický den, jinak číslo 1-5
 
             return (
                 <div className="min-h-screen pb-20">
+                    <div className="watermark">NURKOVIČ</div>
                     {view === 'customer' ? (
-                        <CustomerView onAdminClick={() => setView('admin')} />
+                        <CustomerView 
+                            onAdminClick={() => setView('admin')} 
+                            manualDay={manualDay}
+                            setManualDay={setManualDay}
+                        />
                     ) : (
                         <AdminView 
                             isAuth={isAdminAuth} 
@@ -102,14 +224,17 @@
         }
 
         // Zákaznické rozhraní
-        function CustomerView({ onAdminClick }) {
+        function CustomerView({ onAdminClick, manualDay, setManualDay }) {
             const [step, setStep] = useState('menu'); // 'menu', 'order', 'confirm'
             const [cart, setCart] = useState([]);
             const [customerName, setCustomerName] = useState('');
             const [pickupTime, setPickupTime] = useState('12:00');
             const [orderConfirmed, setOrderConfirmed] = useState(null);
 
-            const menu = DB.getMenu().filter(item => item.available);
+            const menu = DB.getMenu(manualDay).filter(item => item.available);
+
+            const currentDay = manualDay !== null ? manualDay : new Date().getDay();
+            const dayNames = ['NEDĚLE', 'PONDĚLÍ', 'ÚTERÝ', 'STŘEDA', 'ČTVRTEK', 'PÁTEK', 'SOBOTA'];
 
             const addToCart = (item) => {
                 const existing = cart.find(c => c.id === item.id);
@@ -161,42 +286,46 @@
 
             if (step === 'confirm' && orderConfirmed) {
                 return (
-                    <div className="slide-up">
-                        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 text-center">
-                            <div className="text-6xl mb-4">✓</div>
-                            <h1 className="text-2xl font-bold mb-2">Objednávka přijata!</h1>
-                            <p className="opacity-90">Tvé jídlo bude připraveno</p>
+                    <div className="slide-up min-h-screen" style={{background: '#FFFFFF'}}>
+                        <div className="text-center p-10" style={{background: '#FFFFFF', borderBottom: '2px solid #C9A55A'}}>
+                            <div className="text-6xl mb-4 gold-accent">✓</div>
+                            <h1 className="text-2xl font-bold gold-accent mb-2" style={{letterSpacing: '6px'}}>
+                                OBJEDNÁVKA PŘIJATA
+                            </h1>
+                            <p className="text-sm font-light gold-accent" style={{opacity: 0.7}}>Vaše jídlo bude připraveno</p>
                         </div>
 
                         <div className="p-6">
-                            <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-                                <div className="text-center mb-6">
-                                    <p className="text-gray-600 mb-2">Tvůj PIN kód</p>
-                                    <div className="text-5xl font-bold text-indigo-600 mb-2">{orderConfirmed.pin}</div>
-                                    <p className="text-sm text-gray-500">Ukaž tento kód při vyzvednutí</p>
+                            <div className="menu-card p-8 mb-6">
+                                <div className="text-center mb-8 pb-6" style={{borderBottom: '1px solid #C9A55A'}}>
+                                    <p className="text-xs font-medium mb-3 gold-accent" style={{letterSpacing: '2px'}}>VÁŠ PIN KÓD</p>
+                                    <div className="text-6xl font-light mb-2 gold-accent">
+                                        {orderConfirmed.pin}
+                                    </div>
+                                    <p className="text-xs font-light gold-accent" style={{opacity: 0.6}}>Předložte tento kód při vyzvednutí</p>
                                 </div>
 
-                                <div className="border-t pt-4">
-                                    <div className="flex justify-between mb-2">
-                                        <span className="text-gray-600">Jméno:</span>
-                                        <span className="font-semibold">{orderConfirmed.customerName}</span>
+                                <div className="mb-6 space-y-3">
+                                    <div className="flex justify-between py-3" style={{borderBottom: '1px solid rgba(201, 165, 90, 0.2)'}}>
+                                        <span className="text-sm font-light gold-accent">Jméno</span>
+                                        <span className="font-medium gold-accent">{orderConfirmed.customerName}</span>
                                     </div>
-                                    <div className="flex justify-between mb-2">
-                                        <span className="text-gray-600">Čas vyzvednutí:</span>
-                                        <span className="font-semibold">{orderConfirmed.pickupTime}</span>
+                                    <div className="flex justify-between py-3" style={{borderBottom: '1px solid rgba(201, 165, 90, 0.2)'}}>
+                                        <span className="text-sm font-light gold-accent">Čas vyzvednutí</span>
+                                        <span className="font-medium gold-accent">{orderConfirmed.pickupTime}</span>
                                     </div>
-                                    <div className="flex justify-between mb-4">
-                                        <span className="text-gray-600">Cena k úhradě:</span>
-                                        <span className="font-bold text-lg text-indigo-600">{orderConfirmed.totalPrice} Kč</span>
+                                    <div className="flex justify-between py-4">
+                                        <span className="text-sm font-medium gold-accent">K úhradě</span>
+                                        <span className="text-2xl font-light gold-accent">{orderConfirmed.totalPrice} Kč</span>
                                     </div>
                                 </div>
 
-                                <div className="border-t pt-4">
-                                    <p className="font-semibold mb-2">Tvá objednávka:</p>
+                                <div className="pt-6" style={{borderTop: '1px solid #C9A55A'}}>
+                                    <p className="text-xs font-medium mb-4 gold-accent" style={{letterSpacing: '2px'}}>POLOŽKY</p>
                                     {orderConfirmed.items.map(item => (
-                                        <div key={item.id} className="flex justify-between text-sm mb-1">
-                                            <span>{item.quantity}× {item.name}</span>
-                                            <span>{item.price * item.quantity} Kč</span>
+                                        <div key={item.id} className="flex justify-between py-2">
+                                            <span className="text-sm font-light" style={{color: '#666666'}}>{item.quantity}× {item.name}</span>
+                                            <span className="text-sm font-medium gold-accent">{item.price * item.quantity} Kč</span>
                                         </div>
                                     ))}
                                 </div>
@@ -207,9 +336,10 @@
                                     setStep('menu');
                                     setOrderConfirmed(null);
                                 }}
-                                className="w-full bg-indigo-600 text-white py-4 rounded-xl font-semibold text-lg shadow-lg"
+                                className="w-full py-4 font-medium"
+                                style={{background: '#C9A55A', color: '#FFFFFF', letterSpacing: '3px', fontSize: '13px'}}
                             >
-                                Zpět do menu
+                                ZPĚT DO MENU
                             </button>
                         </div>
                     </div>
@@ -218,53 +348,99 @@
 
             return (
                 <div className="fade-in">
-                    <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 sticky top-0 z-10 shadow-lg">
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <h1 className="text-2xl font-bold">Kantýna</h1>
-                                <p className="text-sm opacity-90">Dnešní menu</p>
+                    <div className="sticky top-0 z-10 elegant-shadow" style={{background: '#FFFFFF', borderBottom: '2px solid #C9A55A'}}>
+                        <div className="p-6">
+                            <div className="flex justify-between items-center mb-3">
+                                <div>
+                                    <h1 className="text-3xl font-bold gold-accent" style={{letterSpacing: '8px'}}>
+                                        PALATINO
+                                    </h1>
+                                    <p className="text-xs font-light gold-accent" style={{letterSpacing: '4px', marginTop: '4px', opacity: 0.7}}>
+                                        KANTÝNA - {dayNames[currentDay]}
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={onAdminClick}
+                                    className="px-5 py-2 font-medium gold-accent"
+                                    style={{background: 'transparent', border: '1px solid #C9A55A', letterSpacing: '2px', fontSize: '11px'}}
+                                >
+                                    ADMIN
+                                </button>
                             </div>
-                            <button
-                                onClick={onAdminClick}
-                                className="bg-white/20 px-4 py-2 rounded-lg text-sm"
-                            >
-                                Admin
-                            </button>
+                            
+                            <div className="flex gap-1 overflow-x-auto" style={{whiteSpace: 'nowrap'}}>
+                                {[1, 2, 3, 4, 5].map(day => (
+                                    <button
+                                        key={day}
+                                        onClick={() => setManualDay(day)}
+                                        className="px-3 py-2 font-medium text-xs"
+                                        style={{
+                                            background: currentDay === day ? '#C9A55A' : 'transparent',
+                                            color: currentDay === day ? '#FFFFFF' : '#C9A55A',
+                                            border: '1px solid #C9A55A',
+                                            letterSpacing: '1px',
+                                            minWidth: '70px'
+                                        }}
+                                    >
+                                        {['', 'PO', 'ÚT', 'ST', 'ČT', 'PÁ'][day]}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => setManualDay(null)}
+                                    className="px-3 py-2 font-medium text-xs"
+                                    style={{
+                                        background: manualDay === null ? '#C9A55A' : 'transparent',
+                                        color: manualDay === null ? '#FFFFFF' : '#C9A55A',
+                                        border: '1px solid #C9A55A',
+                                        letterSpacing: '1px',
+                                        minWidth: '70px'
+                                    }}
+                                >
+                                    AUTO
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="p-4">
-                        {['Polévka', 'Hlavní jídlo', 'Dezert'].map(category => {
+                    <div className="p-4" style={{background: '#FFFFFF'}}>
+                        {['Polévka', 'Hlavní jídlo', 'Dezert'].map((category, idx) => {
                             const items = menu.filter(item => item.category === category);
                             if (items.length === 0) return null;
 
                             return (
-                                <div key={category} className="mb-6">
-                                    <h2 className="text-lg font-bold text-gray-800 mb-3 px-2">{category}</h2>
-                                    <div className="space-y-3">
+                                <div key={category} className="mb-10 fade-in">
+                                    <div className="mb-6">
+                                        <h2 className="text-xl font-bold text-center gold-accent" style={{letterSpacing: '6px'}}>
+                                            {category.toUpperCase()}
+                                        </h2>
+                                        <div className="divider mt-3"></div>
+                                    </div>
+                                    <div className="space-y-4">
                                         {items.map(item => {
                                             const inCart = cart.find(c => c.id === item.id);
                                             return (
-                                                <div key={item.id} className="bg-white rounded-xl shadow-md p-4">
-                                                    <div className="flex justify-between items-start mb-3">
-                                                        <div className="flex-1">
-                                                            <h3 className="font-semibold text-gray-800">{item.name}</h3>
-                                                            <p className="text-indigo-600 font-bold mt-1">{item.price} Kč</p>
-                                                        </div>
+                                                <div key={item.id} className="menu-card p-6">
+                                                    <div className="mb-4">
+                                                        <h3 className="font-normal text-lg mb-3 leading-tight" style={{color: '#333333'}}>{item.name}</h3>
+                                                        <p className="text-2xl font-light gold-accent">
+                                                            {item.price} Kč
+                                                        </p>
                                                     </div>
                                                     
                                                     {inCart ? (
-                                                        <div className="flex items-center justify-between bg-indigo-50 rounded-lg p-2">
+                                                        <div className="flex items-center justify-between p-3" style={{border: '1px solid #C9A55A', background: '#FFFFFF'}}>
                                                             <button
                                                                 onClick={() => removeFromCart(item.id)}
-                                                                className="bg-white w-10 h-10 rounded-lg shadow flex items-center justify-center text-xl font-bold text-indigo-600"
+                                                                className="w-12 h-12 flex items-center justify-center text-xl font-light gold-accent"
+                                                                style={{background: '#FFFFFF', border: '1px solid #C9A55A'}}
                                                             >
-                                                                -
+                                                                −
                                                             </button>
-                                                            <span className="font-bold text-lg">{inCart.quantity}</span>
+                                                            <span className="font-medium text-lg gold-accent">{inCart.quantity}</span>
                                                             <button
                                                                 onClick={() => addToCart(item)}
-                                                                className="bg-indigo-600 w-10 h-10 rounded-lg shadow flex items-center justify-center text-xl font-bold text-white"
+                                                                className="w-12 h-12 flex items-center justify-center text-xl font-light gold-accent"
+                                                                style={{background: '#FFFFFF', border: '1px solid #C9A55A'}}
                                                             >
                                                                 +
                                                             </button>
@@ -272,9 +448,10 @@
                                                     ) : (
                                                         <button
                                                             onClick={() => addToCart(item)}
-                                                            className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold shadow-md"
+                                                            className="w-full py-4 font-medium"
+                                                            style={{background: '#C9A55A', color: '#FFFFFF', letterSpacing: '2px', fontSize: '13px'}}
                                                         >
-                                                            Přidat do košíku
+                                                            PŘIDAT
                                                         </button>
                                                     )}
                                                 </div>
@@ -287,25 +464,31 @@
                     </div>
 
                     {cart.length > 0 && (
-                        <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-2xl slide-up">
-                            <div className="p-4">
+                        <div className="fixed bottom-0 left-0 right-0 elegant-shadow slide-up" style={{background: '#FFFFFF', borderTop: '2px solid #C9A55A'}}>
+                            <div className="p-6">
                                 <div className="mb-4">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Tvé jméno</label>
+                                    <label className="block text-xs font-medium mb-2 gold-accent" style={{letterSpacing: '2px'}}>
+                                        JMÉNO
+                                    </label>
                                     <input
                                         type="text"
                                         value={customerName}
                                         onChange={(e) => setCustomerName(e.target.value)}
                                         placeholder="Zadej své jméno"
-                                        className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-lg"
+                                        className="w-full px-4 py-3 text-base font-light"
+                                        style={{border: '1px solid #C9A55A', background: '#FFFFFF'}}
                                     />
                                 </div>
 
-                                <div className="mb-4">
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Čas vyzvednutí</label>
+                                <div className="mb-5">
+                                    <label className="block text-xs font-medium mb-2 gold-accent" style={{letterSpacing: '2px'}}>
+                                        ČAS VYZVEDNUTÍ
+                                    </label>
                                     <select
                                         value={pickupTime}
                                         onChange={(e) => setPickupTime(e.target.value)}
-                                        className="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-lg"
+                                        className="w-full px-4 py-3 text-base font-light"
+                                        style={{border: '1px solid #C9A55A', background: '#FFFFFF'}}
                                     >
                                         <option value="11:30">11:30</option>
                                         <option value="12:00">12:00</option>
@@ -315,16 +498,17 @@
                                     </select>
                                 </div>
 
-                                <div className="flex justify-between items-center mb-4">
-                                    <span className="text-gray-600">Celkem k úhradě:</span>
-                                    <span className="text-2xl font-bold text-indigo-600">{totalPrice} Kč</span>
+                                <div className="flex justify-between items-center mb-5 pb-4" style={{borderBottom: '1px solid #C9A55A'}}>
+                                    <span className="font-medium text-sm gold-accent" style={{letterSpacing: '1px'}}>CELKEM</span>
+                                    <span className="text-2xl font-light gold-accent">{totalPrice} Kč</span>
                                 </div>
 
                                 <button
                                     onClick={submitOrder}
-                                    className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg shadow-xl"
+                                    className="w-full py-4 font-medium"
+                                    style={{background: '#C9A55A', color: '#FFFFFF', letterSpacing: '3px', fontSize: '13px'}}
                                 >
-                                    Objednat ({cart.length} {cart.length === 1 ? 'položka' : cart.length < 5 ? 'položky' : 'položek'})
+                                    OBJEDNAT
                                 </button>
                             </div>
                         </div>
@@ -340,6 +524,8 @@
             const [orders, setOrders] = useState([]);
             const [menu, setMenu] = useState([]);
             const [editingItem, setEditingItem] = useState(null);
+            const [showAddForm, setShowAddForm] = useState(false);
+            const [formData, setFormData] = useState({ name: '', price: '', category: 'Hlavní jídlo' });
 
             useEffect(() => {
                 if (isAuth) {
@@ -353,7 +539,7 @@
             };
 
             const handleLogin = () => {
-                if (password === 'admin123') {
+                if (password === 'Kx9mPn2vLq4wRt8zFh6jYb3sGd7cNm5p') {
                     onAuth(true);
                 } else {
                     alert('Špatné heslo!');
@@ -378,6 +564,74 @@
                 );
                 DB.saveMenu(updatedMenu);
                 loadData();
+            };
+
+            const addMenuItem = () => {
+                if (!formData.name.trim()) {
+                    alert('Vyplň název jídla');
+                    return;
+                }
+                if (!formData.price || formData.price <= 0) {
+                    alert('Vyplň platnou cenu');
+                    return;
+                }
+
+                const newItem = {
+                    id: Date.now(),
+                    name: formData.name.trim(),
+                    price: parseInt(formData.price),
+                    category: formData.category,
+                    available: true
+                };
+
+                const updatedMenu = [...menu, newItem];
+                DB.saveMenu(updatedMenu);
+                setFormData({ name: '', price: '', category: 'Hlavní jídlo' });
+                setShowAddForm(false);
+                loadData();
+            };
+
+            const startEdit = (item) => {
+                setEditingItem(item.id);
+                setFormData({
+                    name: item.name,
+                    price: item.price.toString(),
+                    category: item.category
+                });
+            };
+
+            const saveEdit = (itemId) => {
+                if (!formData.name.trim()) {
+                    alert('Vyplň název jídla');
+                    return;
+                }
+                if (!formData.price || formData.price <= 0) {
+                    alert('Vyplň platnou cenu');
+                    return;
+                }
+
+                const updatedMenu = menu.map(item => 
+                    item.id === itemId 
+                        ? { ...item, name: formData.name.trim(), price: parseInt(formData.price), category: formData.category }
+                        : item
+                );
+                DB.saveMenu(updatedMenu);
+                setEditingItem(null);
+                setFormData({ name: '', price: '', category: 'Hlavní jídlo' });
+                loadData();
+            };
+
+            const cancelEdit = () => {
+                setEditingItem(null);
+                setFormData({ name: '', price: '', category: 'Hlavní jídlo' });
+            };
+
+            const deleteMenuItem = (itemId) => {
+                if (confirm('Opravdu smazat toto jídlo z menu?')) {
+                    const updatedMenu = menu.filter(item => item.id !== itemId);
+                    DB.saveMenu(updatedMenu);
+                    loadData();
+                }
             };
 
             if (!isAuth) {
@@ -405,7 +659,6 @@
                             >
                                 Zpět
                             </button>
-                            <p className="text-sm text-gray-500 text-center mt-4">Výchozí heslo: admin123</p>
                         </div>
                     </div>
                 );
@@ -531,24 +784,149 @@
                             </>
                         ) : (
                             <>
-                                <h2 className="text-xl font-bold text-gray-800 mb-4">Správa menu</h2>
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-xl font-bold text-gray-800">Správa menu</h2>
+                                    <button
+                                        onClick={() => setShowAddForm(!showAddForm)}
+                                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md"
+                                    >
+                                        {showAddForm ? '× Zrušit' : '+ Přidat jídlo'}
+                                    </button>
+                                </div>
+
+                                {showAddForm && (
+                                    <div className="bg-white rounded-xl shadow-lg p-5 mb-4 border-2 border-indigo-500">
+                                        <h3 className="font-bold text-lg mb-4">Nové jídlo</h3>
+                                        
+                                        <div className="mb-3">
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Kategorie</label>
+                                            <select
+                                                value={formData.category}
+                                                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                                className="w-full border-2 border-gray-300 rounded-lg px-4 py-2"
+                                            >
+                                                <option value="Polévka">Polévka</option>
+                                                <option value="Hlavní jídlo">Hlavní jídlo</option>
+                                                <option value="Dezert">Dezert</option>
+                                            </select>
+                                        </div>
+
+                                        <div className="mb-3">
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Název jídla</label>
+                                            <input
+                                                type="text"
+                                                value={formData.name}
+                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                placeholder="např. Smažený řízek s bramborem"
+                                                className="w-full border-2 border-gray-300 rounded-lg px-4 py-2"
+                                            />
+                                        </div>
+
+                                        <div className="mb-4">
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Cena (Kč)</label>
+                                            <input
+                                                type="number"
+                                                value={formData.price}
+                                                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                                placeholder="85"
+                                                className="w-full border-2 border-gray-300 rounded-lg px-4 py-2"
+                                            />
+                                        </div>
+
+                                        <button
+                                            onClick={addMenuItem}
+                                            className="w-full bg-green-600 text-white py-3 rounded-lg font-bold shadow-md"
+                                        >
+                                            ✓ Přidat do menu
+                                        </button>
+                                    </div>
+                                )}
+
                                 <div className="space-y-3">
                                     {menu.map(item => (
                                         <div key={item.id} className={`bg-white rounded-xl shadow-md p-4 ${!item.available ? 'opacity-50' : ''}`}>
-                                            <div className="flex justify-between items-start mb-3">
-                                                <div className="flex-1">
-                                                    <span className="text-xs font-semibold text-gray-500 uppercase">{item.category}</span>
-                                                    <h3 className="font-semibold text-gray-800">{item.name}</h3>
-                                                    <p className="text-indigo-600 font-bold">{item.price} Kč</p>
-                                                </div>
-                                            </div>
-                                            
-                                            <button
-                                                onClick={() => toggleMenuItemAvailability(item.id)}
-                                                className={`w-full py-2 rounded-lg font-semibold ${item.available ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}
-                                            >
-                                                {item.available ? '× Skrýt z nabídky' : '✓ Zobrazit v nabídce'}
-                                            </button>
+                                            {editingItem === item.id ? (
+                                                <>
+                                                    <div className="mb-3">
+                                                        <label className="block text-xs font-semibold text-gray-600 mb-1">Kategorie</label>
+                                                        <select
+                                                            value={formData.category}
+                                                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                                            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm"
+                                                        >
+                                                            <option value="Polévka">Polévka</option>
+                                                            <option value="Hlavní jídlo">Hlavní jídlo</option>
+                                                            <option value="Dezert">Dezert</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div className="mb-3">
+                                                        <label className="block text-xs font-semibold text-gray-600 mb-1">Název</label>
+                                                        <input
+                                                            type="text"
+                                                            value={formData.name}
+                                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2"
+                                                        />
+                                                    </div>
+
+                                                    <div className="mb-3">
+                                                        <label className="block text-xs font-semibold text-gray-600 mb-1">Cena (Kč)</label>
+                                                        <input
+                                                            type="number"
+                                                            value={formData.price}
+                                                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                                            className="w-full border-2 border-gray-300 rounded-lg px-3 py-2"
+                                                        />
+                                                    </div>
+
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => saveEdit(item.id)}
+                                                            className="flex-1 bg-green-600 text-white py-2 rounded-lg font-semibold"
+                                                        >
+                                                            ✓ Uložit
+                                                        </button>
+                                                        <button
+                                                            onClick={cancelEdit}
+                                                            className="flex-1 bg-gray-400 text-white py-2 rounded-lg font-semibold"
+                                                        >
+                                                            Zrušit
+                                                        </button>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="flex justify-between items-start mb-3">
+                                                        <div className="flex-1">
+                                                            <span className="text-xs font-semibold text-gray-500 uppercase">{item.category}</span>
+                                                            <h3 className="font-semibold text-gray-800">{item.name}</h3>
+                                                            <p className="text-indigo-600 font-bold">{item.price} Kč</p>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div className="grid grid-cols-3 gap-2">
+                                                        <button
+                                                            onClick={() => startEdit(item)}
+                                                            className="bg-blue-100 text-blue-700 py-2 rounded-lg font-semibold text-sm"
+                                                        >
+                                                            ✎ Upravit
+                                                        </button>
+                                                        <button
+                                                            onClick={() => toggleMenuItemAvailability(item.id)}
+                                                            className={`py-2 rounded-lg font-semibold text-sm ${item.available ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}
+                                                        >
+                                                            {item.available ? 'Skrýt' : 'Zobrazit'}
+                                                        </button>
+                                                        <button
+                                                            onClick={() => deleteMenuItem(item.id)}
+                                                            className="bg-red-100 text-red-700 py-2 rounded-lg font-semibold text-sm"
+                                                        >
+                                                            × Smazat
+                                                        </button>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                     ))}
                                 </div>
