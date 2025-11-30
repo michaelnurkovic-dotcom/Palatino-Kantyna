@@ -83,7 +83,7 @@
             transform: translate(-50%, -50%) rotate(-45deg);
             font-size: 180px;
             font-weight: 900;
-            color: rgba(201, 165, 90, 0.08);
+            color: rgba(201, 165, 90, 0.25);
             pointer-events: none;
             z-index: 9999;
             user-select: none;
@@ -91,6 +91,13 @@
             white-space: nowrap;
             text-shadow: 2px 2px 4px rgba(201, 165, 90, 0.1);
             font-family: 'Playfair Display', serif;
+        }
+        @media (max-width: 768px) {
+            .watermark {
+                font-size: 80px;
+                letter-spacing: 15px;
+                color: rgba(201, 165, 90, 0.30);
+            }
         }
         .gold-accent {
             color: #C9A55A;
@@ -257,11 +264,31 @@
             const [customerName, setCustomerName] = useState('');
             const [pickupTime, setPickupTime] = useState('10:00');
             const [orderConfirmed, setOrderConfirmed] = useState(null);
-
-            const menu = DB.getMenu(manualDay).filter(item => item.available);
+            const [currentMenu, setCurrentMenu] = useState([]);
 
             const currentDay = manualDay !== null ? manualDay : new Date().getDay();
             const dayNames = ['NEDĚLE', 'PONDĚLÍ', 'ÚTERÝ', 'STŘEDA', 'ČTVRTEK', 'PÁTEK', 'SOBOTA'];
+
+            // Automatická aktualizace menu při změně dne
+            useEffect(() => {
+                const updateMenu = () => {
+                    const menu = DB.getMenu(manualDay).filter(item => item.available);
+                    setCurrentMenu(menu);
+                };
+                
+                updateMenu();
+                
+                // Kontrola každou minutu jestli se nezměnil den
+                const interval = setInterval(() => {
+                    if (manualDay === null) {
+                        updateMenu();
+                    }
+                }, 60000); // 60 sekund
+                
+                return () => clearInterval(interval);
+            }, [manualDay]);
+
+            const menu = currentMenu;
 
             const addToCart = (item) => {
                 const existing = cart.find(c => c.id === item.id);
