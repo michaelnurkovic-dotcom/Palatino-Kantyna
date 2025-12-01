@@ -1539,6 +1539,14 @@
             const prevPendingRef = useRef(0);
             const audioCtxRef = useRef(null);
 
+            const formatTime = (ts) => {
+                try {
+                    const d = ts && ts.toDate ? ts.toDate() : (ts ? new Date(ts) : null);
+                    if (!d || isNaN(d.getTime())) return '';
+                    return d.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
+                } catch { return ''; }
+            };
+
             const playBeep = () => {
                 try {
                     const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -1752,7 +1760,7 @@
                                                         <div style={{ textAlign: 'right' }}>
                                                             <div className="price-tag">{order.totalPrice}</div>
                                                             <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>
-                                                                {new Date(order.createdAt).toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' })}
+                                                                {formatTime(order.createdAt)}
                                                             </div>
                                                         </div>
                                                     </div>
