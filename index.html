@@ -713,16 +713,42 @@
             saveMenu: (menu) => {},
             getOrders: async (callback) => {
                 const today = new Date().toISOString().split('T')[0];
-                db.collection('orders')
-                    .where('date', '==', today)
-                    .orderBy('createdAt', 'desc')
-                    .onSnapshot((snapshot) => {
-                        const orders = [];
-                        snapshot.forEach((doc) => {
-                            orders.push({ ...doc.data(), id: doc.id });
+                const baseQuery = db.collection('orders').where('date', '==', today);
+                try {
+                    baseQuery
+                        .orderBy('createdAt', 'desc')
+                        .onSnapshot((snapshot) => {
+                            const orders = [];
+                            snapshot.forEach((doc) => {
+                                orders.push({ ...doc.data(), id: doc.id });
+                            });
+                            callback(orders);
+                        }, (err) => {
+                            console.error('onSnapshot error (orderBy createdAt):', err);
+                            // Fallback bez orderBy (např. chybějící index). Seřadíme klientsky.
+                            baseQuery.onSnapshot((snapshot2) => {
+                                const orders2 = [];
+                                snapshot2.forEach((doc) => {
+                                    orders2.push({ ...doc.data(), id: doc.id });
+                                });
+                                orders2.sort((a,b) => {
+                                    const ta = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : (new Date(a.createdAt).getTime() || 0);
+                                    const tb = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : (new Date(b.createdAt).getTime() || 0);
+                                    return tb - ta;
+                                });
+                                callback(orders2);
+                            });
                         });
-                        callback(orders);
+                } catch(e) {
+                    console.error('getOrders setup failed:', e);
+                    baseQuery.onSnapshot((snapshot3) => {
+                        const orders3 = [];
+                        snapshot3.forEach((doc) => {
+                            orders3.push({ ...doc.data(), id: doc.id });
+                        });
+                        callback(orders3);
                     });
+                }
             },
             saveOrder: async (order) => {
                 const today = new Date().toISOString().split('T')[0];
@@ -742,193 +768,211 @@
             }
         };
 
-        // Animated Ocean Waves Background - Aerial View with Foam
+        // Animated Ocean Waves Background - Aerial View with Realistic Foam
         function AnimatedBackground() {
-            // Generate random foam particles
-            const generateFoamParticles = (count, seed) => {
-                const particles = [];
-                for (let i = 0; i < count; i++) {
-                    const random = (seed * (i + 1) * 9301 + 49297) % 233280;
-                    const x = (random / 233280) * 100;
-                    const y = ((random * 7) % 233280) / 233280 * 100;
-                    const size = 3 + ((random * 3) % 233280) / 233280 * 12;
-                    const opacity = 0.08 + ((random * 11) % 233280) / 233280 * 0.15;
-                    particles.push({ x, y, size, opacity });
-                }
-                return particles;
-            };
-            
-            const foam1 = generateFoamParticles(25, 1);
-            const foam2 = generateFoamParticles(20, 2);
-            const foam3 = generateFoamParticles(15, 3);
-            
             return (
                 <>
                     <div className="wave-pattern">
                         <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
                             <defs>
-                                {/* Elegant gold gradient for water body */}
+                                {/* Water body gradient */}
                                 <linearGradient id="waterBody" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stopColor="#C9A55A" stopOpacity="0.12"/>
-                                    <stop offset="100%" stopColor="#A88B3D" stopOpacity="0.06"/>
+                                    <stop offset="0%" stopColor="#C9A55A" stopOpacity="0.1"/>
+                                    <stop offset="100%" stopColor="#A88B3D" stopOpacity="0.05"/>
                                 </linearGradient>
                                 
-                                {/* Soft foam gradient */}
-                                <linearGradient id="foamCrest" x1="0%" y1="0%" x2="0%" y2="100%">
-                                    <stop offset="0%" stopColor="#F5ECD9" stopOpacity="0.5"/>
-                                    <stop offset="50%" stopColor="#E8D5A3" stopOpacity="0.35"/>
-                                    <stop offset="100%" stopColor="#C9A55A" stopOpacity="0.1"/>
-                                </linearGradient>
-                                
-                                {/* Radial for foam spots */}
-                                <radialGradient id="foamSpot">
-                                    <stop offset="0%" stopColor="#F5ECD9" stopOpacity="0.4"/>
-                                    <stop offset="60%" stopColor="#E8D5A3" stopOpacity="0.15"/>
+                                {/* Foam gradient - bright center fading out */}
+                                <radialGradient id="foamBubble" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" stopColor="#FAF6ED" stopOpacity="0.7"/>
+                                    <stop offset="40%" stopColor="#F0E6D2" stopOpacity="0.5"/>
+                                    <stop offset="70%" stopColor="#E8D5A3" stopOpacity="0.3"/>
                                     <stop offset="100%" stopColor="#C9A55A" stopOpacity="0"/>
                                 </radialGradient>
                                 
-                                {/* Soft blur filter */}
+                                {/* Smaller foam spots */}
+                                <radialGradient id="foamSmall" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" stopColor="#FBF8F1" stopOpacity="0.6"/>
+                                    <stop offset="60%" stopColor="#E8D5A3" stopOpacity="0.25"/>
+                                    <stop offset="100%" stopColor="#C9A55A" stopOpacity="0"/>
+                                </radialGradient>
+                                
+                                {/* Filters */}
                                 <filter id="softBlur">
                                     <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
                                 </filter>
-                                
                                 <filter id="gentleBlur">
                                     <feGaussianBlur in="SourceGraphic" stdDeviation="4" />
                                 </filter>
                             </defs>
                             
-                            {/* Main Wave 1 */}
+                            {/* ===== WAVE 1 - Top ===== */}
                             <g className="wave-main">
-                                {/* Wave body - smooth fill */}
-                                <path d="M-100,280 
-                                    C50,240 150,320 300,270 
-                                    C450,220 550,340 700,260 
-                                    C850,180 950,300 1100,240
-                                    L1100,450 
-                                    C950,400 850,480 700,420 
-                                    C550,360 450,460 300,400 
-                                    C150,340 50,420 -100,380 Z" 
+                                {/* Wave body */}
+                                <path d="M-100,250 
+                                    C50,200 150,300 350,240 
+                                    C550,180 650,320 850,230 
+                                    C950,185 1050,260 1150,210
+                                    L1150,400 
+                                    C1000,360 900,440 700,380 
+                                    C500,320 400,420 200,360 
+                                    C0,300 -50,380 -100,340 Z" 
                                     fill="url(#waterBody)"/>
                                 
-                                {/* Foam crest - soft gradient band */}
-                                <path d="M-100,285 
-                                    C50,245 150,325 300,275 
-                                    C450,225 550,345 700,265 
-                                    C850,185 950,305 1100,245
-                                    L1100,275 
-                                    C950,335 850,215 700,295 
-                                    C550,375 450,255 300,305 
-                                    C150,355 50,275 -100,315 Z" 
-                                    fill="url(#foamCrest)"
-                                    filter="url(#softBlur)"/>
+                                {/* Foam crest - cluster of organic shapes */}
+                                <g filter="url(#softBlur)">
+                                    {/* Main foam line - irregular blobs */}
+                                    <ellipse cx="50" cy="230" rx="35" ry="12" fill="url(#foamBubble)" transform="rotate(-5 50 230)"/>
+                                    <ellipse cx="120" cy="245" rx="28" ry="10" fill="url(#foamBubble)" transform="rotate(8 120 245)"/>
+                                    <ellipse cx="180" cy="260" rx="40" ry="14" fill="url(#foamBubble)" transform="rotate(-3 180 260)"/>
+                                    <ellipse cx="250" cy="250" rx="32" ry="11" fill="url(#foamBubble)" transform="rotate(12 250 250)"/>
+                                    <ellipse cx="320" cy="235" rx="38" ry="13" fill="url(#foamBubble)" transform="rotate(-8 320 235)"/>
+                                    <ellipse cx="400" cy="220" rx="30" ry="10" fill="url(#foamBubble)" transform="rotate(5 400 220)"/>
+                                    <ellipse cx="470" cy="235" rx="42" ry="15" fill="url(#foamBubble)" transform="rotate(-10 470 235)"/>
+                                    <ellipse cx="550" cy="210" rx="35" ry="12" fill="url(#foamBubble)" transform="rotate(7 550 210)"/>
+                                    <ellipse cx="620" cy="240" rx="28" ry="9" fill="url(#foamBubble)" transform="rotate(-4 620 240)"/>
+                                    <ellipse cx="700" cy="220" rx="38" ry="14" fill="url(#foamBubble)" transform="rotate(10 700 220)"/>
+                                    <ellipse cx="780" cy="245" rx="32" ry="11" fill="url(#foamBubble)" transform="rotate(-6 780 245)"/>
+                                    <ellipse cx="850" cy="225" rx="36" ry="13" fill="url(#foamBubble)" transform="rotate(3 850 225)"/>
+                                    <ellipse cx="930" cy="210" rx="30" ry="10" fill="url(#foamBubble)" transform="rotate(-9 930 210)"/>
+                                    <ellipse cx="1000" cy="230" rx="40" ry="14" fill="url(#foamBubble)" transform="rotate(6 1000 230)"/>
+                                    
+                                    {/* Secondary smaller foam */}
+                                    <ellipse cx="85" cy="255" rx="18" ry="7" fill="url(#foamSmall)" transform="rotate(15 85 255)"/>
+                                    <ellipse cx="210" cy="275" rx="22" ry="8" fill="url(#foamSmall)" transform="rotate(-12 210 275)"/>
+                                    <ellipse cx="360" cy="250" rx="20" ry="7" fill="url(#foamSmall)" transform="rotate(8 360 250)"/>
+                                    <ellipse cx="510" cy="245" rx="24" ry="9" fill="url(#foamSmall)" transform="rotate(-5 510 245)"/>
+                                    <ellipse cx="660" cy="255" rx="18" ry="6" fill="url(#foamSmall)" transform="rotate(11 660 255)"/>
+                                    <ellipse cx="820" cy="260" rx="22" ry="8" fill="url(#foamSmall)" transform="rotate(-7 820 260)"/>
+                                    <ellipse cx="960" cy="245" rx="20" ry="7" fill="url(#foamSmall)" transform="rotate(4 960 245)"/>
+                                </g>
                             </g>
                             
-                            {/* Main Wave 2 */}
+                            {/* ===== WAVE 2 - Middle ===== */}
                             <g className="wave-main-2">
-                                <path d="M-100,520 
-                                    C100,470 200,560 400,500 
-                                    C600,440 700,570 900,490 
-                                    C1000,450 1050,520 1100,480
-                                    L1100,680 
-                                    C1000,640 900,720 700,660 
-                                    C500,600 400,700 200,640 
-                                    C0,580 -50,660 -100,620 Z" 
-                                    fill="url(#waterBody)" 
-                                    fillOpacity="0.8"/>
+                                <path d="M-100,500 
+                                    C100,440 200,560 420,480 
+                                    C640,400 740,550 950,460 
+                                    C1050,420 1100,500 1150,450
+                                    L1150,650 
+                                    C1050,610 950,700 750,630 
+                                    C550,560 450,680 250,600 
+                                    C50,520 -50,620 -100,570 Z" 
+                                    fill="url(#waterBody)" fillOpacity="0.8"/>
                                 
-                                <path d="M-100,525 
-                                    C100,475 200,565 400,505 
-                                    C600,445 700,575 900,495 
-                                    C1000,455 1050,525 1100,485
-                                    L1100,515 
-                                    C1000,555 900,525 700,545 
-                                    C500,565 400,535 200,555 
-                                    C0,575 -50,545 -100,555 Z" 
-                                    fill="url(#foamCrest)"
-                                    filter="url(#softBlur)"/>
+                                <g filter="url(#softBlur)">
+                                    <ellipse cx="30" cy="480" rx="32" ry="11" fill="url(#foamBubble)" transform="rotate(-7 30 480)"/>
+                                    <ellipse cx="110" cy="465" rx="38" ry="13" fill="url(#foamBubble)" transform="rotate(5 110 465)"/>
+                                    <ellipse cx="200" cy="490" rx="30" ry="10" fill="url(#foamBubble)" transform="rotate(-10 200 490)"/>
+                                    <ellipse cx="280" cy="475" rx="42" ry="15" fill="url(#foamBubble)" transform="rotate(8 280 475)"/>
+                                    <ellipse cx="370" cy="455" rx="35" ry="12" fill="url(#foamBubble)" transform="rotate(-4 370 455)"/>
+                                    <ellipse cx="460" cy="480" rx="28" ry="10" fill="url(#foamBubble)" transform="rotate(12 460 480)"/>
+                                    <ellipse cx="550" cy="450" rx="40" ry="14" fill="url(#foamBubble)" transform="rotate(-6 550 450)"/>
+                                    <ellipse cx="640" cy="475" rx="33" ry="11" fill="url(#foamBubble)" transform="rotate(3 640 475)"/>
+                                    <ellipse cx="730" cy="445" rx="36" ry="13" fill="url(#foamBubble)" transform="rotate(-9 730 445)"/>
+                                    <ellipse cx="820" cy="470" rx="30" ry="10" fill="url(#foamBubble)" transform="rotate(7 820 470)"/>
+                                    <ellipse cx="900" cy="450" rx="38" ry="14" fill="url(#foamBubble)" transform="rotate(-3 900 450)"/>
+                                    <ellipse cx="980" cy="465" rx="34" ry="12" fill="url(#foamBubble)" transform="rotate(10 980 465)"/>
+                                    
+                                    <ellipse cx="70" cy="500" rx="20" ry="7" fill="url(#foamSmall)" transform="rotate(14 70 500)"/>
+                                    <ellipse cx="240" cy="505" rx="24" ry="8" fill="url(#foamSmall)" transform="rotate(-8 240 505)"/>
+                                    <ellipse cx="420" cy="490" rx="18" ry="6" fill="url(#foamSmall)" transform="rotate(6 420 490)"/>
+                                    <ellipse cx="590" cy="485" rx="22" ry="8" fill="url(#foamSmall)" transform="rotate(-11 590 485)"/>
+                                    <ellipse cx="770" cy="480" rx="20" ry="7" fill="url(#foamSmall)" transform="rotate(9 770 480)"/>
+                                    <ellipse cx="940" cy="485" rx="18" ry="6" fill="url(#foamSmall)" transform="rotate(-5 940 485)"/>
+                                </g>
                             </g>
                             
-                            {/* Main Wave 3 */}
+                            {/* ===== WAVE 3 - Bottom ===== */}
                             <g className="wave-main-3">
-                                <path d="M-100,750 
-                                    C80,700 180,790 350,730 
-                                    C520,670 620,800 800,720 
-                                    C920,665 1000,750 1100,700
-                                    L1100,900 
-                                    C980,860 880,940 700,880 
-                                    C520,820 420,920 250,860 
-                                    C80,800 -20,880 -100,840 Z" 
-                                    fill="url(#waterBody)" 
-                                    fillOpacity="0.6"/>
+                                <path d="M-100,730 
+                                    C80,670 180,780 380,700 
+                                    C580,620 680,770 880,680 
+                                    C980,640 1060,720 1150,670
+                                    L1150,880 
+                                    C1040,840 940,930 740,860 
+                                    C540,790 440,900 240,820 
+                                    C40,740 -40,840 -100,790 Z" 
+                                    fill="url(#waterBody)" fillOpacity="0.6"/>
                                 
-                                <path d="M-100,755 
-                                    C80,705 180,795 350,735 
-                                    C520,675 620,805 800,725 
-                                    C920,670 1000,755 1100,705
-                                    L1100,730 
-                                    C980,770 880,730 700,755 
-                                    C520,780 420,745 250,770 
-                                    C80,795 -20,760 -100,780 Z" 
-                                    fill="url(#foamCrest)"
-                                    filter="url(#softBlur)"/>
+                                <g filter="url(#softBlur)">
+                                    <ellipse cx="20" cy="710" rx="30" ry="10" fill="url(#foamBubble)" transform="rotate(-6 20 710)"/>
+                                    <ellipse cx="100" cy="695" rx="36" ry="12" fill="url(#foamBubble)" transform="rotate(9 100 695)"/>
+                                    <ellipse cx="190" cy="720" rx="28" ry="9" fill="url(#foamBubble)" transform="rotate(-4 190 720)"/>
+                                    <ellipse cx="280" cy="700" rx="40" ry="14" fill="url(#foamBubble)" transform="rotate(7 280 700)"/>
+                                    <ellipse cx="370" cy="680" rx="32" ry="11" fill="url(#foamBubble)" transform="rotate(-10 370 680)"/>
+                                    <ellipse cx="460" cy="705" rx="35" ry="12" fill="url(#foamBubble)" transform="rotate(5 460 705)"/>
+                                    <ellipse cx="550" cy="675" rx="38" ry="13" fill="url(#foamBubble)" transform="rotate(-8 550 675)"/>
+                                    <ellipse cx="640" cy="700" rx="30" ry="10" fill="url(#foamBubble)" transform="rotate(11 640 700)"/>
+                                    <ellipse cx="730" cy="670" rx="34" ry="12" fill="url(#foamBubble)" transform="rotate(-3 730 670)"/>
+                                    <ellipse cx="820" cy="695" rx="36" ry="13" fill="url(#foamBubble)" transform="rotate(6 820 695)"/>
+                                    <ellipse cx="910" cy="665" rx="32" ry="11" fill="url(#foamBubble)" transform="rotate(-9 910 665)"/>
+                                    <ellipse cx="1000" cy="685" rx="38" ry="13" fill="url(#foamBubble)" transform="rotate(4 1000 685)"/>
+                                    
+                                    <ellipse cx="60" cy="730" rx="18" ry="6" fill="url(#foamSmall)" transform="rotate(12 60 730)"/>
+                                    <ellipse cx="230" cy="735" rx="22" ry="7" fill="url(#foamSmall)" transform="rotate(-7 230 735)"/>
+                                    <ellipse cx="410" cy="720" rx="20" ry="7" fill="url(#foamSmall)" transform="rotate(8 410 720)"/>
+                                    <ellipse cx="600" cy="715" rx="18" ry="6" fill="url(#foamSmall)" transform="rotate(-10 600 715)"/>
+                                    <ellipse cx="780" cy="710" rx="22" ry="8" fill="url(#foamSmall)" transform="rotate(5 780 710)"/>
+                                    <ellipse cx="950" cy="700" rx="20" ry="7" fill="url(#foamSmall)" transform="rotate(-6 950 700)"/>
+                                </g>
                             </g>
                             
-                            {/* Scattered foam - organic shapes */}
-                            <g className="foam-group" filter="url(#gentleBlur)">
-                                {foam1.map((p, i) => (
-                                    <ellipse 
-                                        key={i} 
-                                        cx={p.x * 10} 
-                                        cy={p.y * 10} 
-                                        rx={p.size * 1.5} 
-                                        ry={p.size} 
-                                        fill="url(#foamSpot)"
-                                        opacity={p.opacity}
-                                        transform={`rotate(${p.x * 3.6}, ${p.x * 10}, ${p.y * 10})`}
-                                    />
-                                ))}
+                            {/* ===== Scattered foam in water ===== */}
+                            <g filter="url(#gentleBlur)" className="foam-group">
+                                <ellipse cx="150" cy="350" rx="25" ry="10" fill="url(#foamSmall)" opacity="0.4" transform="rotate(20 150 350)"/>
+                                <ellipse cx="400" cy="380" rx="30" ry="12" fill="url(#foamSmall)" opacity="0.35" transform="rotate(-15 400 380)"/>
+                                <ellipse cx="650" cy="340" rx="22" ry="8" fill="url(#foamSmall)" opacity="0.4" transform="rotate(10 650 340)"/>
+                                <ellipse cx="850" cy="370" rx="28" ry="10" fill="url(#foamSmall)" opacity="0.35" transform="rotate(-8 850 370)"/>
+                                
+                                <ellipse cx="100" cy="600" rx="24" ry="9" fill="url(#foamSmall)" opacity="0.3" transform="rotate(18 100 600)"/>
+                                <ellipse cx="320" cy="630" rx="28" ry="11" fill="url(#foamSmall)" opacity="0.35" transform="rotate(-12 320 630)"/>
+                                <ellipse cx="550" cy="590" rx="20" ry="7" fill="url(#foamSmall)" opacity="0.3" transform="rotate(6 550 590)"/>
+                                <ellipse cx="780" cy="620" rx="26" ry="10" fill="url(#foamSmall)" opacity="0.35" transform="rotate(-20 780 620)"/>
+                                
+                                <ellipse cx="200" cy="850" rx="22" ry="8" fill="url(#foamSmall)" opacity="0.25" transform="rotate(14 200 850)"/>
+                                <ellipse cx="450" cy="880" rx="26" ry="10" fill="url(#foamSmall)" opacity="0.3" transform="rotate(-10 450 880)"/>
+                                <ellipse cx="700" cy="840" rx="20" ry="7" fill="url(#foamSmall)" opacity="0.25" transform="rotate(8 700 840)"/>
+                                <ellipse cx="900" cy="870" rx="24" ry="9" fill="url(#foamSmall)" opacity="0.3" transform="rotate(-16 900 870)"/>
                             </g>
                             
-                            <g className="foam-group-2" filter="url(#gentleBlur)">
-                                {foam2.map((p, i) => (
-                                    <ellipse 
-                                        key={i} 
-                                        cx={p.x * 10} 
-                                        cy={p.y * 10} 
-                                        rx={p.size} 
-                                        ry={p.size * 0.7} 
-                                        fill="#E8D5A3"
-                                        opacity={p.opacity * 0.6}
-                                        transform={`rotate(${p.y * 3.6}, ${p.x * 10}, ${p.y * 10})`}
-                                    />
-                                ))}
+                            {/* Tiny scattered foam spots */}
+                            <g filter="url(#gentleBlur)" className="foam-group-2">
+                                <circle cx="80" cy="320" r="8" fill="#F0E6D2" opacity="0.2"/>
+                                <circle cx="250" cy="360" r="6" fill="#F0E6D2" opacity="0.15"/>
+                                <circle cx="500" cy="330" r="9" fill="#F0E6D2" opacity="0.2"/>
+                                <circle cx="720" cy="360" r="7" fill="#F0E6D2" opacity="0.15"/>
+                                <circle cx="950" cy="340" r="8" fill="#F0E6D2" opacity="0.2"/>
+                                
+                                <circle cx="180" cy="560" r="7" fill="#F0E6D2" opacity="0.15"/>
+                                <circle cx="420" cy="580" r="9" fill="#F0E6D2" opacity="0.2"/>
+                                <circle cx="680" cy="550" r="6" fill="#F0E6D2" opacity="0.15"/>
+                                <circle cx="880" cy="570" r="8" fill="#F0E6D2" opacity="0.2"/>
+                                
+                                <circle cx="120" cy="800" r="6" fill="#F0E6D2" opacity="0.12"/>
+                                <circle cx="350" cy="820" r="8" fill="#F0E6D2" opacity="0.15"/>
+                                <circle cx="600" cy="790" r="7" fill="#F0E6D2" opacity="0.12"/>
+                                <circle cx="820" cy="810" r="9" fill="#F0E6D2" opacity="0.15"/>
                             </g>
                             
-                            <g className="foam-group-3" filter="url(#gentleBlur)">
-                                {foam3.map((p, i) => (
-                                    <ellipse 
-                                        key={i} 
-                                        cx={p.x * 10} 
-                                        cy={p.y * 10} 
-                                        rx={p.size * 0.8} 
-                                        ry={p.size * 0.5} 
-                                        fill="#F5ECD9"
-                                        opacity={p.opacity * 0.4}
-                                    />
-                                ))}
-                            </g>
-                            
-                            {/* Subtle distant wave hint */}
-                            <g className="wave-main" style={{ opacity: 0.4 }}>
-                                <path d="M-100,80 
-                                    C150,40 250,120 450,70 
-                                    C650,20 750,110 950,60 
-                                    C1050,30 1080,80 1100,50
-                                    L1100,120 
-                                    C1050,150 950,100 750,130 
-                                    C550,160 450,110 250,140 
-                                    C50,170 -50,120 -100,150 Z" 
+                            {/* Distant wave hint */}
+                            <g className="wave-main" style={{ opacity: 0.35 }}>
+                                <path d="M-100,60 
+                                    C100,20 200,100 400,50 
+                                    C600,0 700,90 900,40 
+                                    C1000,10 1080,70 1150,30
+                                    L1150,120 
+                                    C1050,90 950,150 750,100 
+                                    C550,50 450,130 250,80 
+                                    C50,30 -50,100 -100,60 Z" 
                                     fill="url(#waterBody)"/>
+                                    
+                                <g filter="url(#softBlur)" opacity="0.6">
+                                    <ellipse cx="100" cy="50" rx="25" ry="8" fill="url(#foamBubble)"/>
+                                    <ellipse cx="300" cy="60" rx="30" ry="10" fill="url(#foamBubble)"/>
+                                    <ellipse cx="500" cy="40" rx="28" ry="9" fill="url(#foamBubble)"/>
+                                    <ellipse cx="700" cy="55" rx="32" ry="11" fill="url(#foamBubble)"/>
+                                    <ellipse cx="900" cy="35" rx="26" ry="8" fill="url(#foamBubble)"/>
+                                </g>
                             </g>
                         </svg>
                     </div>
@@ -976,7 +1020,6 @@
 
             return (
                 <div style={{ minHeight: '100vh', position: 'relative' }}>
-                    <AnimatedBackground />
                     
                     <div style={{ position: 'relative', zIndex: 2 }}>
                         {view === 'customer' ? (
@@ -1493,6 +1536,28 @@
             const [activeTab, setActiveTab] = useState('orders');
             const [orders, setOrders] = useState([]);
             const [menu, setMenu] = useState([]);
+            const prevPendingRef = useRef(0);
+            const audioCtxRef = useRef(null);
+
+            const playBeep = () => {
+                try {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioCtx) return;
+                    const ctx = audioCtxRef.current || new AudioCtx();
+                    audioCtxRef.current = ctx;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = 880;
+                    gain.gain.value = 0.05;
+                    osc.connect(gain).connect(ctx.destination);
+                    const now = ctx.currentTime;
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                } catch (e) {
+                    console.warn('Beep failed:', e);
+                }
+            };
 
             useEffect(() => {
                 if (isAuth) {
@@ -1500,6 +1565,20 @@
                     setMenu(DB.getMenu());
                 }
             }, [isAuth]);
+
+            // Alert on new pending orders
+            useEffect(() => {
+                if (!isAuth) return;
+                const today = new Date().toDateString();
+                const todayPending = orders.filter(o => {
+                    const orderDate = new Date(o.createdAt).toDateString();
+                    return orderDate === today && o.status === 'pending';
+                }).length;
+                if (todayPending > prevPendingRef.current) {
+                    playBeep();
+                }
+                prevPendingRef.current = todayPending;
+            }, [orders, isAuth]);
 
             const handleLogin = () => {
                 if (password === 'Kx9mPn2vLq4wRt8zFh6jYb3sGd7cNm5p') {
