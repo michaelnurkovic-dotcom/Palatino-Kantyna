@@ -1645,11 +1645,9 @@
                 );
             }
 
-            const todayOrders = orders.filter(order => {
-                const orderDate = new Date(order.createdAt).toDateString();
-                const today = new Date().toDateString();
-                return orderDate === today;
-            });
+            // Už máme z DB jen dnešní objednávky (dotaz where('date','==', today)),
+            // není potřeba znovu filtrovat podle createdAt (může být Firestore Timestamp).
+            const todayOrders = orders;
 
             const pendingOrders = todayOrders.filter(o => o.status === 'pending');
             const completedOrders = todayOrders.filter(o => o.status === 'completed');
