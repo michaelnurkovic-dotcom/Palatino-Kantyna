@@ -1539,13 +1539,7 @@
             const prevPendingRef = useRef(0);
             const audioCtxRef = useRef(null);
 
-            const formatTime = (ts) => {
-                try {
-                    const d = ts && ts.toDate ? ts.toDate() : (ts ? new Date(ts) : null);
-                    if (!d || isNaN(d.getTime())) return '';
-                    return d.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
-                } catch { return ''; }
-            };
+            // Zobrazení času objednávky odstraněno dle požadavku
 
             const playBeep = () => {
                 try {
@@ -1720,6 +1714,43 @@
                     <main style={{ padding: '20px' }}>
                         {activeTab === 'orders' ? (
                             <>
+                                {/* Souhrn počtů položek (jen čekající objednávky) */}
+                                {(() => {
+                                    const totals = {};
+                                    pendingOrders.forEach(o => {
+                                        (o.items || []).forEach(it => {
+                                            const key = it.name;
+                                            const qty = Number(it.quantity || 1);
+                                            totals[key] = (totals[key] || 0) + qty;
+                                        });
+                                    });
+                                    const entries = Object.entries(totals).sort((a,b) => b[1]-a[1]);
+                                    if (entries.length === 0) return null;
+                                    return (
+                                        <div className="card" style={{ padding: '16px', marginBottom: '20px' }}>
+                                            <h2 style={{ 
+                                                fontSize: '14px',
+                                                fontWeight: '500',
+                                                letterSpacing: '2px',
+                                                color: 'var(--gold)',
+                                                marginBottom: '12px'
+                                            }}>SOUHRN ČEKAJÍCÍCH POLOŽEK</h2>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                                {entries.map(([name, qty]) => (
+                                                    <div key={name} style={{
+                                                        padding: '6px 10px',
+                                                        border: '1px solid var(--gold)',
+                                                        borderRadius: '16px',
+                                                        fontSize: '12px',
+                                                        background: 'rgba(201,165,90,0.08)'
+                                                    }}>
+                                                        {name} <span style={{ color: 'var(--gold)' }}>× {qty}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
                                 {pendingOrders.length === 0 ? (
                                     <div style={{ textAlign: 'center', padding: '60px 20px' }}>
                                         <div style={{ fontSize: '64px', marginBottom: '16px', opacity: 0.3 }}>📋</div>
@@ -1759,9 +1790,6 @@
                                                         </div>
                                                         <div style={{ textAlign: 'right' }}>
                                                             <div className="price-tag">{order.totalPrice}</div>
-                                                            <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>
-                                                                {formatTime(order.createdAt)}
-                                                            </div>
                                                         </div>
                                                     </div>
                                                     
