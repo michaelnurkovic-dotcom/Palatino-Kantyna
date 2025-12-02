@@ -459,7 +459,7 @@
                                 <p style={{ fontSize: '10px', fontWeight: '400', color: 'var(--gold)', letterSpacing: '4px', marginTop: '8px', opacity: 0.7 }}>KANTÝNA • {dayNames[currentDay]}</p>
                             </div>
                             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                <span style={{ fontSize: '10px', fontWeight: '500', letterSpacing: '2px', color: nowOpen ? '#10b981' : '#ef4444' }}>{nowOpen ? 'OTEVŘENO' : 'ZAVŘENO'} • 9:00–16:00</span>
+                <span style={{ fontSize: '10px', fontWeight: '500', letterSpacing: '2px', color: nowOpen ? '#10b981' : '#ef4444' }}>{nowOpen ? 'OTEVŘENO' : 'ONLINE OBJEDNÁVKY POZASTAVENY'} • 9:00–16:00</span>
                                 <button onClick={onAdminClick} className="btn-outline animate-fadeInUp stagger-1">ADMIN</button>
                             </div>
                         </div>
@@ -478,7 +478,7 @@
                                 <div style={{ width: '80px', height: '80px', border: '2px solid var(--gold)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px', opacity: 0.6 }}>
                                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round"/></svg>
                                 </div>
-                                <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: '500', color: 'var(--gold)', letterSpacing: '4px', marginBottom: '16px' }}>DNES ZAVŘENO</h2>
+                <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '28px', fontWeight: '500', color: 'var(--gold)', letterSpacing: '4px', marginBottom: '16px' }}>ONLINE OBJEDNÁVKY POZASTAVENY</h2>
                                 <p style={{ fontSize: '14px', fontWeight: '300', color: '#999', maxWidth: '280px', lineHeight: 1.6 }}>O víkendu polední menu nenabízíme. Těšíme se na vás v pondělí!</p>
                             </div>
                         ) : (
@@ -509,14 +509,14 @@
                                                                     </div>
                                                                 ) : (
                                                                     <div className="qty-controls" style={{ opacity: 0.6 }}>
-                                                                        <span style={{ fontSize: '12px', color: '#999' }}>Mimo provoz (9:00–16:00)</span>
+                <span style={{ fontSize: '12px', color: '#999' }}>Online objednávky pozastaveny</span>
                                                                     </div>
                                                                 )
                                                             ) : (
                                                                 nowOpen ? (
                                                                     <button onClick={() => addToCart(item)} className="btn-gold" style={{ width: '100%' }}>PŘIDAT</button>
                                                                 ) : (
-                                                                    <button className="btn-outline" style={{ width: '100%', cursor: 'not-allowed', opacity: 0.6 }}>MIMO PROVOZ</button>
+                <button className="btn-outline" style={{ width: '100%', cursor: 'not-allowed', opacity: 0.6 }}>ONLINE OBJEDNÁVKY POZASTAVENY</button>
                                                                 )
                                                             )}
                                                         </div>
@@ -562,7 +562,7 @@
                                         <span style={{ fontSize: '12px', color: '#999' }}>Objednávky jsou dostupné 9:00–16:00</span>
                                     </div>
                                 )}
-                                <button onClick={submitOrder} className="btn-gold" style={{ width: '100%', opacity: nowOpen ? 1 : 0.7 }}>{nowOpen ? 'OBJEDNAT' : 'MIMO PROVOZ'}</button>
+                <button onClick={submitOrder} className="btn-gold" style={{ width: '100%', opacity: nowOpen ? 1 : 0.7 }}>{nowOpen ? 'OBJEDNAT' : 'ONLINE OBJEDNÁVKY POZASTAVENY'}</button>
                             </div>
                         </div>
                     )}
